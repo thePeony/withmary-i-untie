@@ -1,67 +1,60 @@
-import { useRef, useEffect } from 'react'
-import PrayerBlock from './PrayerBlock'
+import { useState, useEffect, useCallback } from 'react'
+import PrayerCard from './PrayerCard'
 
 export default function FlowScreen({ blocks, currentIndex, onAdvance }) {
-  const blockRefs = useRef({})
+  const [visible, setVisible] = useState(true)
 
-  // 새 블록이 나타날 때 해당 블록 상단으로 부드럽게 스크롤
+  // 블록 바뀔 때 페이드 전환
   useEffect(() => {
-    const el = blockRefs.current[currentIndex]
-    if (!el) return
-    const top = el.getBoundingClientRect().top + window.scrollY - 80
-    window.scrollTo({ top, behavior: 'smooth' })
+    setVisible(false)
+    const t = setTimeout(() => setVisible(true), 180)
+    return () => clearTimeout(t)
   }, [currentIndex])
 
-  const visibleBlocks = blocks.slice(0, currentIndex + 1)
+  const block = blocks[currentIndex]
+  const isComplete = currentIndex >= blocks.length
 
-  function getSectionAt(index) {
-    if (index === 0) return blocks[0]?.section
-    if (blocks[index]?.section !== blocks[index - 1]?.section) {
-      return blocks[index]?.section
-    }
-    return null
+  if (isComplete) {
+    return (
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-white dark:bg-gray-950 pb-16">
+        <p className="text-sm text-gray-400 dark:text-gray-500 tracking-widest">
+          기도가 완료되었습니다.
+        </p>
+      </div>
+    )
   }
 
   return (
-    <div className="px-6 pt-8">
-      {visibleBlocks.map((block, index) => {
-        const sectionLabel = getSectionAt(index)
-        const isActive = index === currentIndex
-        const isPast = index < currentIndex
+    <div
+      className="fixed inset-0 pb-16 bg-white dark:bg-gray-950"
+      style={{
+        opacity: visible ? 1 : 0,
+        transition: 'opacity 0.18s ease-in-out',
+      }}
+    >
+      {/* 섹션 라벨 */}
+      <div className="px-6 pt-10 pb-2">
+        <p className="text-[10px] tracking-[0.3em] text-gray-300 dark:text-gray-600 uppercase">
+          {block.section}
+        </p>
+      </div>
 
-        return (
+      {/* 카드 본문 — 긴 텍스트는 내부 스크롤 */}
+      <PrayerCard
+        block={block}
+        onTap={block.type !== 'rosary' ? onAdvance : undefined}
+        onBeadsComplete={onAdvance}
+      />
+
+      {/* 진행 표시 */}
+      <div className="absolute bottom-20 left-0 right-0 px-6">
+        <div className="h-px bg-gray-100 dark:bg-gray-800 w-full">
           <div
-            key={block.id}
-            ref={(el) => { blockRefs.current[index] = el }}
-            className="animate-block-in"
-          >
-            {sectionLabel && (
-              <p className="text-[10px] tracking-[0.3em] text-gray-300 dark:text-gray-600 uppercase mt-10 mb-2 first:mt-0">
-                {sectionLabel}
-              </p>
-            )}
-
-            <div className={isPast ? 'opacity-25 pointer-events-none' : ''}>
-              <PrayerBlock
-                block={block}
-                isActive={isActive}
-                onTap={isActive && block.type !== 'rosary' ? onAdvance : undefined}
-                onBeadsComplete={isActive ? onAdvance : undefined}
-              />
-            </div>
-          </div>
-        )
-      })}
-
-      {currentIndex >= blocks.length && (
-        <div className="flex flex-col items-center py-20 gap-3 animate-block-in">
-          <p className="text-sm text-gray-400 dark:text-gray-500 tracking-widest">
-            기도가 완료되었습니다.
-          </p>
+            className="h-px bg-gray-300 dark:bg-gray-600 transition-all duration-500"
+            style={{ width: `${((currentIndex + 1) / blocks.length) * 100}%` }}
+          />
         </div>
-      )}
-
-      <div className="h-40" />
+      </div>
     </div>
   )
 }

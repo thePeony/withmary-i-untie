@@ -21,7 +21,7 @@ export default function App() {
 
       {!loading && (
         <>
-          <main className="pb-16 max-w-lg mx-auto">
+          <main className="max-w-lg mx-auto">
             {pages[activeTab]}
           </main>
           <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
