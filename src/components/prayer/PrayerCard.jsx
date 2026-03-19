@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import RosaryBeads from './RosaryBeads'
 
+const CARD_BASE = 'absolute inset-0 top-[52px] bottom-24 overflow-y-auto px-6 py-4 animate-fadein'
+
 export default function PrayerCard({ block, onTap, onBeadsComplete }) {
   const [open, setOpen] = useState(block.defaultOpen !== false)
 
@@ -24,7 +26,7 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
   // ── 묵주알 카드 ────────────────────────────────────────────
   if (block.type === 'rosary') {
     return (
-      <div className="absolute inset-0 top-[72px] bottom-24 overflow-y-auto px-6 py-4">
+      <div className={CARD_BASE}>
         <p className="text-base tracking-wide text-gray-600 dark:text-gray-300 font-medium mb-4">
           {block.title}
         </p>
@@ -37,7 +39,7 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
   if (block.collapsible) {
     return (
       <div
-        className="absolute inset-0 top-[72px] bottom-24 overflow-y-auto px-6 py-4 cursor-pointer"
+        className={`${CARD_BASE} cursor-pointer`}
         onClick={(e) => {
           if (e.target.closest('[data-toggle]')) return
           onTap?.()
@@ -72,7 +74,7 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
   // ── 일반 텍스트 카드 ───────────────────────────────────────
   return (
     <div
-      className="absolute inset-0 top-[72px] bottom-24 overflow-y-auto px-6 py-4 cursor-pointer active:opacity-70 transition-opacity"
+      className={`${CARD_BASE} cursor-pointer active:opacity-70 transition-opacity`}
       onClick={onTap}
     >
       {block.title && (
