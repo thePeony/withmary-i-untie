@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import RosaryBeads from './RosaryBeads'
 
-const CARD_BASE = 'absolute inset-0 top-[52px] bottom-24 overflow-y-auto px-6 py-4 animate-fadein'
+const CARD_BASE = 'absolute inset-0 top-[60px] bottom-16 overflow-y-auto px-6 py-4 animate-fadein'
 
 // 타이틀: 본문(text-sm)과 동일 크기, 굵기만 medium
 const TITLE_CLASS = 'text-sm font-medium tracking-wide text-gray-700 dark:text-gray-200 mb-3'
