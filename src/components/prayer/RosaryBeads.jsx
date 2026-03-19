@@ -19,7 +19,8 @@ export default function RosaryBeads({ count = 10, onComplete, blockId }) {
 
   return (
     <div data-rosary className="select-none h-full" onClick={handleTap}>
-      <div className="text-sm text-gray-600 dark:text-gray-300 leading-loose mb-6">
+      {/* 성모송 텍스트 — px-6 패딩은 여기서 직접 적용 */}
+      <div className="px-6 text-sm text-gray-600 dark:text-gray-300 leading-loose mb-6">
         {hailMaryText.split('\n').map((line, i) =>
           line === ''
             ? <span key={i} className="block mt-3" />
@@ -27,8 +28,8 @@ export default function RosaryBeads({ count = 10, onComplete, blockId }) {
         )}
       </div>
 
-      {/* 묵주알 — 글씨 크기 설정에 영향받지 않도록 px 고정 */}
-      <div className="flex items-center justify-center py-4 overflow-x-hidden" style={{ gap: '8px' }}>
+      {/* 묵주알 — full-width + px 고정 크기로 어떤 글씨 크기에도 동일하게 표시 */}
+      <div className="w-full flex items-center justify-center py-4" style={{ gap: '8px' }}>
         {Array.from({ length: count }).map((_, i) => (
           <div
             key={i}
@@ -43,8 +44,8 @@ export default function RosaryBeads({ count = 10, onComplete, blockId }) {
         ))}
       </div>
 
-      {/* 카운트 + 안내 — 두 줄 */}
-      <div className="text-center mt-2 space-y-0.5">
+      {/* 카운트 + 안내 */}
+      <div className="px-6 text-center mt-2 space-y-0.5">
         <p className="text-xs text-gray-500 dark:text-gray-400">
           {filled} / {count}
         </p>

@@ -31,6 +31,7 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
   }
 
   // ── 묵주알 카드 — 전체 화면 탭 ───────────────────────────────
+  // 묵주알 행은 px-6(rem) 패딩 밖에서 full-width로 렌더링해야 클리핑이 없음
   if (block.type === 'rosary') {
     return (
       <div
@@ -41,8 +42,8 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
           }
         }}
       >
-        <div className={CARD_SCROLL}>
-          <p className={TITLE_CLASS}>{block.title}</p>
+        <div className="flex-1 overflow-y-auto overscroll-none pt-3 pb-4 overflow-x-hidden">
+          <p className={`${TITLE_CLASS} px-6`}>{block.title}</p>
           <RosaryBeads count={block.count} onComplete={onBeadsComplete} blockId={block.id} />
         </div>
       </div>
