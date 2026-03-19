@@ -70,15 +70,22 @@ export default function PrayerPage() {
         }
       }
     }
+    // 기록 수정 시 진행중 세션 지향 실시간 반영
+    function onSessionIntentionUpdated(e) {
+      setSession(prev => prev ? { ...prev, intention: e.detail.intention } : prev)
+      setSavedState(prev => prev ? { ...prev, intention: e.detail.intention } : prev)
+    }
     window.addEventListener('withmary-rest-cleared', onRestCleared)
     window.addEventListener('withmary-session-cleared', onSessionCleared)
     window.addEventListener('withmary-rest-updated', onRestUpdated)
     window.addEventListener('withmary-history-changed', onHistoryChanged)
+    window.addEventListener('withmary-session-intention-updated', onSessionIntentionUpdated)
     return () => {
       window.removeEventListener('withmary-rest-cleared', onRestCleared)
       window.removeEventListener('withmary-session-cleared', onSessionCleared)
       window.removeEventListener('withmary-rest-updated', onRestUpdated)
       window.removeEventListener('withmary-history-changed', onHistoryChanged)
+      window.removeEventListener('withmary-session-intention-updated', onSessionIntentionUpdated)
     }
   }, [])
 

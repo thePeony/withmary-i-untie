@@ -138,8 +138,12 @@ export function syncIntentionToActive(completedAts, newIntention) {
     const atDates = completedAts.map(at => new Date(at).toDateString())
     if (atDates.includes(new Date(state.date).toDateString())) {
       saveState({ ...state, intention: newIntention })
+      window.dispatchEvent(new CustomEvent('withmary-session-intention-updated', { detail: { intention: newIntention } }))
     }
   }
+
+  // restState가 없어도(자정 이후) nextStart.intention 갱신되도록 항상 발송
+  window.dispatchEvent(new CustomEvent('withmary-history-changed', { detail: loadHistory() }))
 }
 
 // 히스토리에서 오늘 완료한 기록이 있으면 restState 동기화
