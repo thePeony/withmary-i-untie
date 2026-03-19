@@ -13,7 +13,7 @@ export default function MaryPage() {
   }
 
   return (
-    <div className="min-h-screen pt-8 px-6 pb-24">
+    <div className="min-h-screen pt-8 px-6 pb-20">
       {/* 헤더 */}
       <div className="mb-8">
         <p className="text-[10px] tracking-[0.3em] text-gray-300 dark:text-gray-600 uppercase mb-1">

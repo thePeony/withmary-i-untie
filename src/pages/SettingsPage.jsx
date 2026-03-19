@@ -76,7 +76,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen pt-8 px-6 pb-24">
+    <div className="min-h-screen pt-8 px-6 pb-20">
 
       {/* 설정 */}
       <div className="mb-10">

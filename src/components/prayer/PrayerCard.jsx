@@ -3,7 +3,7 @@ import RosaryBeads from './RosaryBeads'
 
 // 카드 외곽: flex column — animate-fadein은 CARD_SCROLL에만 (계속 › 는 페이드 제외)
 const CARD_BASE = 'absolute inset-0 top-[60px] bottom-16 flex flex-col'
-const CARD_SCROLL = 'flex-1 overflow-y-auto px-6 py-4 animate-fadein'
+const CARD_SCROLL = 'flex-1 overflow-y-auto px-6 pt-3 pb-4 animate-fadein'
 
 // 타이틀: font-bold
 const TITLE_CLASS = 'text-sm font-bold tracking-wide text-gray-700 dark:text-gray-200 mb-3'
