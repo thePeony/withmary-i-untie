@@ -37,14 +37,15 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
       <div
         className={`${CARD_BASE} cursor-pointer`}
         onClick={(e) => {
-          // RosaryBeads 내부 클릭은 RosaryBeads가 처리, 나머지 빈 공간도 동일하게 처리
           if (!e.target.closest('[data-rosary]')) {
             document.querySelector('[data-rosary]')?.click()
           }
         }}
       >
-        <p className={TITLE_CLASS}>{block.title}</p>
-        <RosaryBeads count={block.count} onComplete={onBeadsComplete} blockId={block.id} />
+        <div className={CARD_SCROLL}>
+          <p className={TITLE_CLASS}>{block.title}</p>
+          <RosaryBeads count={block.count} onComplete={onBeadsComplete} blockId={block.id} />
+        </div>
       </div>
     )
   }

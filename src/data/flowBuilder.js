@@ -91,14 +91,14 @@ function decadeBlocks(mysteryKey, decadeIndex, settings = {}) {
   ].join('\n')
 
   return [
-    // 신비 설명 (접기)
-    textBlock({
+    // 신비 설명 — 1단에만 표시
+    ...(decadeIndex === 0 ? [textBlock({
       id: `decade_${mysteryKey}_${decadeIndex}_mysteryDesc`,
       title: '신비 설명',
       body: mystery.description,
       section,
       collapsible: false,
-    }),
+    })] : []),
     // 신비 선포 + 성서·묵상 (한 카드)
     textBlock({
       id: `decade_${mysteryKey}_${decadeIndex}_announcement`,
