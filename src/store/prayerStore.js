@@ -108,7 +108,7 @@ export function exportHistory() {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `withmary_기도기록_${new Date().toISOString().slice(0, 10)}.json`
+  a.download = `9일기도 기록_${new Date().toISOString().slice(0, 10)}.json`
   a.click()
   URL.revokeObjectURL(url)
 }
