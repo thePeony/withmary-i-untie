@@ -158,10 +158,10 @@ function closingBlocks() {
   ]
 }
 
-// ─── {{매듭}} 치환 ────────────────────────────────────────────
+// ─── [지향] 치환 — JSON에 [지향] 으로 표기 ─────────────────────
 function injectIntention(blocks, intention) {
-  if (!intention) return blocks
-  const r = (s) => s ? s.replace(/\{\{매듭\}\}/g, intention) : s
+  const fill = intention || '[지향]'   // 빈 의향이면 [지향] 그대로 표시
+  const r = (s) => s ? s.replace(/\[지향\]/g, fill) : s
   return blocks.map(b => ({
     ...b,
     title: r(b.title),
