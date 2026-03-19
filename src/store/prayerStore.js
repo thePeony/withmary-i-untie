@@ -24,6 +24,28 @@ export function clearState() {
   localStorage.removeItem(KEY)
 }
 
+// ─── 설정 ─────────────────────────────────────────────────
+const SETTINGS_KEY = 'withmary_settings'
+
+export const DEFAULT_SETTINGS = {
+  hideInstructions: false,   // 모든 안내 문구 숨기기
+  hideCreedInstruction: false, // 사도신경 안내 숨기기
+  hideGloryInstruction: false, // 영광송 안내 숨기기
+}
+
+export function saveSettings(settings) {
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings))
+}
+
+export function loadSettings() {
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY)
+    return raw ? { ...DEFAULT_SETTINGS, ...JSON.parse(raw) } : { ...DEFAULT_SETTINGS }
+  } catch {
+    return { ...DEFAULT_SETTINGS }
+  }
+}
+
 // ─── 기록 ─────────────────────────────────────────────────
 export function saveRecord(record) {
   const history = loadHistory()

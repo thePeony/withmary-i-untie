@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { buildFlow } from '../data/flowBuilder'
 import FlowScreen from '../components/prayer/FlowScreen'
-import { saveState, loadState, clearState, saveRecord } from '../store/prayerStore'
+import { saveState, loadState, clearState, saveRecord, loadSettings } from '../store/prayerStore'
 
 export default function PrayerPage() {
   const [session, setSession] = useState(null)   // { dayNumber, date, blocks, currentIndex, intention }
@@ -20,7 +20,8 @@ export default function PrayerPage() {
   // 새 기도 시작
   function startNew(dayNumber = 1, intention = '') {
     const date = new Date()
-    const blocks = buildFlow(dayNumber, date)
+    const settings = loadSettings()
+    const blocks = buildFlow(dayNumber, date, settings)
     const newSession = {
       dayNumber,
       date: date.toISOString(),
@@ -38,7 +39,8 @@ export default function PrayerPage() {
   function resume() {
     if (!savedState) return
     const date = new Date(savedState.date)
-    const blocks = buildFlow(savedState.dayNumber, date)
+    const settings = loadSettings()
+    const blocks = buildFlow(savedState.dayNumber, date, settings)
     setSession({ ...savedState, blocks })
     setResumePrompt(false)
   }
@@ -50,16 +52,19 @@ export default function PrayerPage() {
     const updated = { ...session, currentIndex: next }
     setSession(updated)
     saveState({ ...updated, blocks: undefined })
-
-    // 완료 처리
     if (next >= session.blocks.length) {
-      saveRecord({
-        dayNumber: session.dayNumber,
-        date: session.date,
-        intention: session.intention,
-      })
+      saveRecord({ dayNumber: session.dayNumber, date: session.date, intention: session.intention })
       clearState()
     }
+  }, [session])
+
+  // 이전 블록으로
+  const goBack = useCallback(() => {
+    if (!session || session.currentIndex <= 0) return
+    const prev = session.currentIndex - 1
+    const updated = { ...session, currentIndex: prev }
+    setSession(updated)
+    saveState({ ...updated, blocks: undefined })
   }, [session])
 
   // ── 재개 프롬프트 ─────────────────────────────────────────
@@ -108,6 +113,7 @@ export default function PrayerPage() {
       blocks={session.blocks}
       currentIndex={session.currentIndex}
       onAdvance={advance}
+      onBack={goBack}
     />
   )
 }

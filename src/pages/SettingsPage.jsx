@@ -1,7 +1,35 @@
 import { useState, useEffect } from 'react'
-import { loadHistory } from '../store/prayerStore'
+import { loadHistory, loadSettings, saveSettings, DEFAULT_SETTINGS } from '../store/prayerStore'
 
 const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
+
+function ToggleRow({ label, desc, on, onToggle, disabled = false, last = false }) {
+  return (
+    <div className={`flex items-center justify-between py-4 ${last ? '' : 'border-b border-gray-100 dark:border-gray-800'}`}>
+      <div>
+        <span className={`text-sm ${disabled ? 'text-gray-300 dark:text-gray-600' : 'text-gray-600 dark:text-gray-300'}`}>
+          {label}
+        </span>
+        {desc && (
+          <p className="text-[10px] text-gray-300 dark:text-gray-600 mt-0.5">{desc}</p>
+        )}
+      </div>
+      <button
+        onClick={disabled ? undefined : onToggle}
+        className={[
+          'w-12 h-6 rounded-full transition-colors duration-300 relative',
+          disabled ? 'opacity-30 cursor-default' : '',
+          on && !disabled ? 'bg-gray-800 dark:bg-gray-200' : 'bg-gray-200 dark:bg-gray-700',
+        ].join(' ')}
+      >
+        <span className={[
+          'absolute top-1 w-4 h-4 rounded-full bg-white transition-transform duration-300',
+          on ? 'translate-x-7' : 'translate-x-1',
+        ].join(' ')} />
+      </button>
+    </div>
+  )
+}
 
 function formatDate(isoString) {
   const d = new Date(isoString)
@@ -14,6 +42,7 @@ export default function SettingsPage() {
   const [darkMode, setDarkMode] = useState(
     document.documentElement.classList.contains('dark')
   )
+  const [settings, setSettings] = useState(() => loadSettings())
 
   useEffect(() => {
     setHistory(loadHistory())
@@ -26,6 +55,12 @@ export default function SettingsPage() {
     localStorage.setItem('withmary_dark', next ? '1' : '0')
   }
 
+  function toggleSetting(key) {
+    const next = { ...settings, [key]: !settings[key] }
+    setSettings(next)
+    saveSettings(next)
+  }
+
   return (
     <div className="min-h-screen pt-8 px-6 pb-24">
       {/* 설정 */}
@@ -33,21 +68,26 @@ export default function SettingsPage() {
         <p className="text-[10px] tracking-[0.3em] text-gray-300 dark:text-gray-600 uppercase mb-4">
           설정
         </p>
-        <div className="flex items-center justify-between py-4 border-b border-gray-100 dark:border-gray-800">
-          <span className="text-sm text-gray-600 dark:text-gray-300">다크 모드</span>
-          <button
-            onClick={toggleDark}
-            className={[
-              'w-12 h-6 rounded-full transition-colors duration-300 relative',
-              darkMode ? 'bg-gray-800' : 'bg-gray-200',
-            ].join(' ')}
-          >
-            <span className={[
-              'absolute top-1 w-4 h-4 rounded-full bg-white transition-transform duration-300',
-              darkMode ? 'translate-x-7' : 'translate-x-1',
-            ].join(' ')} />
-          </button>
-        </div>
+        <ToggleRow label="다크 모드" on={darkMode} onToggle={toggleDark} />
+        <ToggleRow
+          label="안내 문구 숨기기"
+          desc="모든 기도 방법 안내를 숨깁니다"
+          on={settings.hideInstructions}
+          onToggle={() => toggleSetting('hideInstructions')}
+        />
+        <ToggleRow
+          label="사도신경 안내 숨기기"
+          on={settings.hideCreedInstruction}
+          onToggle={() => toggleSetting('hideCreedInstruction')}
+          disabled={settings.hideInstructions}
+        />
+        <ToggleRow
+          label="영광송 안내 숨기기"
+          on={settings.hideGloryInstruction}
+          onToggle={() => toggleSetting('hideGloryInstruction')}
+          disabled={settings.hideInstructions}
+          last
+        />
       </div>
 
       {/* 기록 */}

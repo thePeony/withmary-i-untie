@@ -3,8 +3,11 @@ import RosaryBeads from './RosaryBeads'
 
 const CARD_BASE = 'absolute inset-0 top-[60px] bottom-16 overflow-y-auto px-6 py-4 animate-fadein'
 
-// 타이틀: 본문(text-sm)과 동일 크기, 굵기만 medium
-const TITLE_CLASS = 'text-sm font-medium tracking-wide text-gray-700 dark:text-gray-200 mb-3'
+// 타이틀: font-semibold (볼드)
+const TITLE_CLASS = 'text-sm font-semibold tracking-wide text-gray-700 dark:text-gray-200 mb-3'
+
+// 탭하여 계속: 섹션 라벨과 같은 색
+const CONTINUE_CLASS = 'text-[10px] text-gray-500 dark:text-gray-400 tracking-widest mt-6'
 
 export default function PrayerCard({ block, onTap, onBeadsComplete }) {
   const [open, setOpen] = useState(block.defaultOpen !== false)
@@ -26,10 +29,18 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
     })
   }
 
-  // ── 묵주알 카드 ────────────────────────────────────────────
+  // ── 묵주알 카드 — 전체 화면 탭 ───────────────────────────────
   if (block.type === 'rosary') {
     return (
-      <div className={CARD_BASE}>
+      <div
+        className={`${CARD_BASE} cursor-pointer`}
+        onClick={(e) => {
+          // RosaryBeads 내부 클릭은 RosaryBeads가 처리, 나머지 빈 공간도 동일하게 처리
+          if (!e.target.closest('[data-rosary]')) {
+            document.querySelector('[data-rosary]')?.click()
+          }
+        }}
+      >
         <p className={TITLE_CLASS}>{block.title}</p>
         <RosaryBeads count={block.count} onComplete={onBeadsComplete} blockId={block.id} />
       </div>
@@ -56,16 +67,12 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
             ▾
           </span>
         </div>
-
         {open && (
           <div className="text-sm text-gray-600 dark:text-gray-300 leading-loose whitespace-pre-line">
             {renderBody(block.body)}
           </div>
         )}
-
-        <p className="text-[10px] text-gray-200 dark:text-gray-700 tracking-widest mt-6">
-          탭하여 계속 ↓
-        </p>
+        <p className={CONTINUE_CLASS}>탭하여 계속 ↓</p>
       </div>
     )
   }
@@ -77,9 +84,7 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
       className={`${CARD_BASE} cursor-pointer active:opacity-70 transition-opacity`}
       onClick={onTap}
     >
-      {block.title && (
-        <p className={TITLE_CLASS}>{block.title}</p>
-      )}
+      {block.title && <p className={TITLE_CLASS}>{block.title}</p>}
 
       <div className={`text-sm leading-loose whitespace-pre-line ${
         isInstruction
@@ -89,9 +94,7 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
         {renderBody(block.body)}
       </div>
 
-      <p className="text-[10px] text-gray-200 dark:text-gray-700 tracking-widest mt-6">
-        탭하여 계속 ↓
-      </p>
+      <p className={CONTINUE_CLASS}>탭하여 계속 ↓</p>
     </div>
   )
 }

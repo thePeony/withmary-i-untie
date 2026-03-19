@@ -17,6 +17,16 @@ export function getMysteryKeyForDate(date = new Date()) {
   return WEEKDAY_MAP[key]
 }
 
+// ─── 설정 기반 블록 필터 ─────────────────────────────────────
+function applySettings(blocks, settings = {}) {
+  return blocks.filter(b => {
+    if (settings.hideInstructions && b.subtype === 'instruction') return false
+    if (settings.hideCreedInstruction && b.id === 'opening_creedInstruct') return false
+    if (settings.hideGloryInstruction && (b.id?.includes('gloryInstruct') || b.id === 'intro_gloryInstruct')) return false
+    return true
+  })
+}
+
 // ─── 블록 생성 헬퍼 ──────────────────────────────────────────
 let _idSeq = 0
 function makeId(prefix) {
@@ -49,27 +59,39 @@ function openingBlocks() {
   ]
 }
 
-function rosaryIntroBlocks() {
+function rosaryIntroBlocks(settings = {}) {
   const t = texts.rosaryIntro
-  return [
-    textBlock({ id: 'intro_lordsPrayer',   title: t.lordsPrayer.title,  body: t.lordsPrayer.body,  section: '묵주 준비 기도' }),
-    textBlock({ id: 'intro_hailMary_1',    title: `${t.hailMary.title} 1`, body: t.hailMary.body, section: '묵주 준비 기도' }),
-    textBlock({ id: 'intro_hailMary_2',    title: `${t.hailMary.title} 2`, body: t.hailMary.body, section: '묵주 준비 기도' }),
-    textBlock({ id: 'intro_hailMary_3',    title: `${t.hailMary.title} 3`, body: t.hailMary.body, section: '묵주 준비 기도' }),
-    textBlock({ id: 'intro_gloryInstruct', title: t.gloryBeInstruction.title, body: t.gloryBeInstruction.body, section: '묵주 준비 기도' }),
-    textBlock({ id: 'intro_gloryBe',       title: t.gloryBe.title,      body: t.gloryBe.body,      section: '묵주 준비 기도' }),
+  const s = '묵주 준비 기도'
+  const blocks = [
+    textBlock({ id: 'intro_lordsPrayer',   title: t.lordsPrayer.title,  body: t.lordsPrayer.body,  section: s, subtype: 'prayer' }),
+    textBlock({ id: 'intro_hailMary_1',    title: `${t.hailMary.title} 1`, body: t.hailMary.body, section: s, subtype: 'prayer' }),
+    textBlock({ id: 'intro_hailMary_2',    title: `${t.hailMary.title} 2`, body: t.hailMary.body, section: s, subtype: 'prayer' }),
+    textBlock({ id: 'intro_hailMary_3',    title: `${t.hailMary.title} 3`, body: t.hailMary.body, section: s, subtype: 'prayer' }),
+    textBlock({ id: 'intro_gloryInstruct', title: t.gloryBeInstruction.title, body: t.gloryBeInstruction.body, section: s, subtype: 'instruction' }),
+    textBlock({ id: 'intro_gloryBe',       title: t.gloryBe.title,      body: t.gloryBe.body,      section: s, subtype: 'prayer' }),
   ]
+  return applySettings(blocks, settings)
 }
 
-function decadeBlocks(mysteryKey, decadeIndex) {
+function decadeBlocks(mysteryKey, decadeIndex, settings = {}) {
   const mystery = mysteries[mysteryKey]
   const decade = mystery.decades[decadeIndex]
   const t = texts.rosaryIntro
   const closing = texts.decadeFixed.decadeClosingPrayer
   const section = `${mystery.label} ${decadeIndex + 1}단`
 
+  // 신비 선포 + 성서·묵상을 하나의 카드로
+  const announcementBody = [
+    decade.title,
+    '',
+    decade.scripture.quote,
+    `— ${decade.scripture.source}`,
+    '',
+    decade.meditation.text,
+  ].join('\n')
+
   return [
-    // 신비 설명 (접기) — 먼저
+    // 신비 설명 (접기)
     textBlock({
       id: `decade_${mysteryKey}_${decadeIndex}_mysteryDesc`,
       title: '신비 설명',
@@ -78,60 +100,24 @@ function decadeBlocks(mysteryKey, decadeIndex) {
       collapsible: true,
       defaultOpen: false,
     }),
-    // 성서 · 묵상 (접기) — 신비 선포 전에
-    textBlock({
-      id: `decade_${mysteryKey}_${decadeIndex}_reflection`,
-      title: '성서 · 묵상',
-      body: `${decade.scripture.quote}\n\n— ${decade.scripture.source}\n\n${decade.meditation.text}`,
-      section,
-      collapsible: true,
-      defaultOpen: true,
-    }),
-    // 신비 선포 — 성서묵상 다음
+    // 신비 선포 + 성서·묵상 (한 카드)
     textBlock({
       id: `decade_${mysteryKey}_${decadeIndex}_announcement`,
       title: `${mystery.label} ${decadeIndex + 1}단`,
-      body: decade.title,
+      body: announcementBody,
       section,
     }),
     // 주님의 기도
-    textBlock({
-      id: `decade_${mysteryKey}_${decadeIndex}_lordsPrayer`,
-      title: t.lordsPrayer.title,
-      body: t.lordsPrayer.body,
-      section,
-    }),
+    textBlock({ id: `decade_${mysteryKey}_${decadeIndex}_lordsPrayer`, title: t.lordsPrayer.title, body: t.lordsPrayer.body, section, subtype: 'prayer' }),
     // 성모송 10번 (묵주알)
-    rosaryBlock({
-      id: `decade_${mysteryKey}_${decadeIndex}_beads`,
-      title: t.hailMary.title,
-      count: 10,
-      section,
-      collapsible: true,
-      defaultOpen: true,
-    }),
+    rosaryBlock({ id: `decade_${mysteryKey}_${decadeIndex}_beads`, title: t.hailMary.title, count: 10, section }),
     // 영광송 안내
-    textBlock({
-      id: `decade_${mysteryKey}_${decadeIndex}_gloryInstruct`,
-      title: t.gloryBeInstruction.title,
-      body: t.gloryBeInstruction.body,
-      section,
-    }),
+    textBlock({ id: `decade_${mysteryKey}_${decadeIndex}_gloryInstruct`, title: t.gloryBeInstruction.title, body: t.gloryBeInstruction.body, section, subtype: 'instruction' }),
     // 영광송
-    textBlock({
-      id: `decade_${mysteryKey}_${decadeIndex}_gloryBe`,
-      title: t.gloryBe.title,
-      body: t.gloryBe.body,
-      section,
-    }),
+    textBlock({ id: `decade_${mysteryKey}_${decadeIndex}_gloryBe`, title: t.gloryBe.title, body: t.gloryBe.body, section, subtype: 'prayer' }),
     // 단 끝 기도
-    textBlock({
-      id: `decade_${mysteryKey}_${decadeIndex}_closing`,
-      title: closing.title,
-      body: closing.body,
-      section,
-    }),
-  ]
+    textBlock({ id: `decade_${mysteryKey}_${decadeIndex}_closing`, title: closing.title, body: closing.body, section, subtype: 'prayer' }),
+  ].filter(b => applySettings([b], settings).length > 0)
 }
 
 function novenaDayBlocks(dayNumber) {
@@ -171,20 +157,20 @@ function closingBlocks() {
  * @param {Date}   date      - 기도 날짜 (요일 → 신비 결정)
  * @returns {Array} blocks   - 전체 기도 블록 배열
  */
-export function buildFlow(dayNumber = 1, date = new Date()) {
+export function buildFlow(dayNumber = 1, date = new Date(), settings = {}) {
   _idSeq = 0
   const mysteryKey = getMysteryKeyForDate(date)
 
   return [
-    ...openingBlocks(),                    // 공통 시작기도
-    ...rosaryIntroBlocks(),                // 묵주 준비 기도
-    ...decadeBlocks(mysteryKey, 0),        // 1단
-    ...decadeBlocks(mysteryKey, 1),        // 2단
-    ...decadeBlocks(mysteryKey, 2),        // 3단
-    ...novenaDayBlocks(dayNumber),         // 9일기도
-    ...decadeBlocks(mysteryKey, 3),        // 4단
-    ...decadeBlocks(mysteryKey, 4),        // 5단
-    ...closingBlocks(),                    // 마침기도
+    ...applySettings(openingBlocks(), settings),
+    ...rosaryIntroBlocks(settings),
+    ...decadeBlocks(mysteryKey, 0, settings),
+    ...decadeBlocks(mysteryKey, 1, settings),
+    ...decadeBlocks(mysteryKey, 2, settings),
+    ...novenaDayBlocks(dayNumber),
+    ...decadeBlocks(mysteryKey, 3, settings),
+    ...decadeBlocks(mysteryKey, 4, settings),
+    ...closingBlocks(),
   ]
 }
 

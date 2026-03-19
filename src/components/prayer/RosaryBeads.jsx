@@ -6,30 +6,23 @@ const hailMaryText = pack.texts.rosaryIntro.hailMary.body
 export default function RosaryBeads({ count = 10, onComplete, blockId }) {
   const [filled, setFilled] = useState(0)
 
-  // 블록이 바뀌면 초기화
-  useEffect(() => {
-    setFilled(0)
-  }, [blockId])
+  useEffect(() => { setFilled(0) }, [blockId])
 
   function handleTap() {
     if (filled >= count) return
     const next = filled + 1
     setFilled(next)
-    if (next === count) {
-      // 마지막 알 → 즉시 완료 콜백
-      setTimeout(() => onComplete?.(), 300)
-    }
+    if (next === count) setTimeout(() => onComplete?.(), 300)
   }
 
   return (
-    <div className="select-none" onClick={handleTap}>
-      {/* 성모송 본문 */}
+    // data-rosary: 카드 빈 공간 탭 시 이 div로 클릭 위임
+    <div data-rosary className="select-none h-full" onClick={handleTap}>
       <p className="text-sm text-gray-600 dark:text-gray-300 leading-loose whitespace-pre-line mb-6">
         {hailMaryText}
       </p>
 
-      {/* 묵주알 10개 */}
-      <div className="flex items-center justify-center gap-2 py-4 cursor-pointer">
+      <div className="flex items-center justify-center gap-2 py-4">
         {Array.from({ length: count }).map((_, i) => (
           <div
             key={i}
@@ -43,10 +36,8 @@ export default function RosaryBeads({ count = 10, onComplete, blockId }) {
         ))}
       </div>
 
-      <p className="text-center text-xs text-gray-300 dark:text-gray-600 mt-2">
-        {filled < count
-          ? `화면을 탭하세요 · ${filled} / ${count}`
-          : `✓ ${count}번 완료`}
+      <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-2">
+        {filled < count ? `화면을 탭하세요 · ${filled} / ${count}` : `✓ ${count}번 완료`}
       </p>
     </div>
   )
