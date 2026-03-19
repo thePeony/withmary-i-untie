@@ -3,7 +3,7 @@ import RosaryBeads from './RosaryBeads'
 
 // 카드 외곽: flex column — animate-fadein은 CARD_SCROLL에만 (계속 › 는 페이드 제외)
 const CARD_BASE = 'absolute inset-0 top-[60px] bottom-16 flex flex-col'
-const CARD_SCROLL = 'flex-1 overflow-y-auto px-6 pt-3 pb-4'
+const CARD_SCROLL = 'flex-1 overflow-y-auto overscroll-none px-6 pt-3 pb-4'
 
 // 타이틀: font-bold
 const TITLE_CLASS = 'text-sm font-bold tracking-wide text-gray-700 dark:text-gray-200 mb-3'
@@ -111,7 +111,7 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
             </span>
           </div>
           {open && (
-            <div className="text-sm text-gray-600 dark:text-gray-300 leading-loose whitespace-pre-line">
+            <div className="text-sm text-gray-600 dark:text-gray-300 leading-loose">
               {renderBody(block.body)}
             </div>
           )}
@@ -130,7 +130,7 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
     >
       <div className={CARD_SCROLL}>
         {block.title && <p className={TITLE_CLASS}>{block.title}</p>}
-        <div className="text-sm leading-loose whitespace-pre-line text-gray-600 dark:text-gray-300">
+        <div className="text-sm leading-loose text-gray-600 dark:text-gray-300">
           {renderBody(block.body)}
         </div>
       </div>

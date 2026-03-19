@@ -3,6 +3,20 @@ import pack from '../data/undoer_pack.json'
 
 const { categories } = pack.aboutUndoerTab
 
+// <b>, <strong> → 볼드 렌더링
+function renderBody(text) {
+  if (!text) return null
+  return text.split('\n').map((line, i) => {
+    if (line === '') return <span key={i} className="block mt-3" />
+    const parts = line.split(/(<b>.*?<\/b>|<strong>.*?<\/strong>)/g).map((chunk, j) => {
+      if (/^<b>/.test(chunk)) return <strong key={j}>{chunk.replace(/<\/?b>/g, '')}</strong>
+      if (/^<strong>/.test(chunk)) return <strong key={j}>{chunk.replace(/<\/?strong>/g, '')}</strong>
+      return <span key={j}>{chunk}</span>
+    })
+    return <span key={i} className="block">{parts}</span>
+  })
+}
+
 export default function MaryPage() {
   const [openId, setOpenId] = useState(
     categories.find((c) => c.defaultOpen)?.id ?? null
@@ -50,8 +64,8 @@ export default function MaryPage() {
               </button>
 
               {isOpen && hasContent && (
-                <div className="pb-6 text-sm text-gray-600 dark:text-gray-300 leading-loose whitespace-pre-line">
-                  {cat.body}
+                <div className="pb-6 text-sm text-gray-600 dark:text-gray-300 leading-loose">
+                  {renderBody(cat.body)}
                 </div>
               )}
             </div>
