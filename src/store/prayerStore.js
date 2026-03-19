@@ -31,6 +31,7 @@ export const DEFAULT_SETTINGS = {
   hideInstructions: false,   // 모든 안내 문구 숨기기
   hideCreedInstruction: false, // 사도신경 안내 숨기기
   hideGloryInstruction: false, // 영광송 안내 숨기기
+  fontSize: 1,               // 글씨 크기 1~4
 }
 
 export function saveSettings(settings) {
@@ -118,6 +119,24 @@ export function loadRestState() {
 
 export function clearRestState() {
   localStorage.removeItem(REST_KEY)
+}
+
+// 지향 수정 시 restState · 진행중인 세션에 반영
+export function syncIntentionToActive(completedAts, newIntention) {
+  const rest = loadRestState()
+  if (rest && completedAts.includes(rest.completedAt)) {
+    const updated = { ...rest, intention: newIntention }
+    saveRestState(updated)
+    window.dispatchEvent(new CustomEvent('withmary-rest-updated', { detail: updated }))
+  }
+
+  const state = loadState()
+  if (state) {
+    const atDates = completedAts.map(at => new Date(at).toDateString())
+    if (atDates.includes(new Date(state.date).toDateString())) {
+      saveState({ ...state, intention: newIntention })
+    }
+  }
 }
 
 // 히스토리에서 오늘 완료한 기록이 있으면 restState 동기화

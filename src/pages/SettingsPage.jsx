@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import {
   loadHistory, loadSettings, saveSettings,
   exportHistory, importHistory, updateRecord, deleteRecord,
-  syncRestStateFromHistory,
+  syncRestStateFromHistory, syncIntentionToActive,
 } from '../store/prayerStore'
 
 const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
@@ -89,6 +89,13 @@ export default function SettingsPage() {
     saveSettings(next)
   }
 
+  function changeFontSize(size) {
+    const next = { ...settings, fontSize: size }
+    setSettings(next)
+    saveSettings(next)
+    document.documentElement.dataset.fontsize = size
+  }
+
   function startEditGroup(groupIdx) {
     setEditingGroup(groupIdx)
     setEditText(groups[groupIdx].intention)
@@ -96,13 +103,15 @@ export default function SettingsPage() {
 
   function saveEditGroup(groupIdx) {
     const group = groups[groupIdx]
+    const completedAts = group.records.map(r => r.completedAt)
     let h = loadHistory()
-    group.records.forEach(r => {
-      h = updateRecord(r.completedAt, { intention: editText })
+    completedAts.forEach(at => {
+      h = updateRecord(at, { intention: editText })
     })
     setHistory(h)
     setGroups(groupHistory(h))
     setEditingGroup(null)
+    syncIntentionToActive(completedAts, editText)
   }
 
   function handleDelete(completedAt) {
@@ -143,8 +152,29 @@ export default function SettingsPage() {
           label="안내 문구 보이기"
           on={instructionsVisible}
           onToggle={toggleInstructions}
-          last
         />
+
+        {/* 글씨 크기 */}
+        <div className="flex items-center justify-between py-4">
+          <span className="text-sm text-gray-600 dark:text-gray-300">글씨 크기</span>
+          <div className="flex gap-2">
+            {[1, 2, 3, 4].map((n) => (
+              <button
+                key={n}
+                onClick={() => changeFontSize(n)}
+                style={{ fontSize: `${10 + n * 2}px` }}
+                className={[
+                  'w-9 h-9 rounded flex items-center justify-center transition-colors',
+                  settings.fontSize === n
+                    ? 'bg-gray-800 dark:bg-gray-100 text-white dark:text-gray-900'
+                    : 'text-gray-400 dark:text-gray-500 border border-gray-100 dark:border-gray-800',
+                ].join(' ')}
+              >
+                가
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* 기도 기록 */}

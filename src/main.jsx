@@ -8,6 +8,14 @@ if (localStorage.getItem('withmary_dark') === '1') {
   document.documentElement.classList.add('dark')
 }
 
+// 글씨 크기 초기화
+try {
+  const s = JSON.parse(localStorage.getItem('withmary_settings') || '{}')
+  if (s.fontSize && s.fontSize > 1) {
+    document.documentElement.dataset.fontsize = s.fontSize
+  }
+} catch {}
+
 // 서비스워커 등록 (PWA 설치 지원)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {

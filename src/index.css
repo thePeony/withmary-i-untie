@@ -33,6 +33,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 글씨 크기 단계 — html font-size 조정으로 rem 전체 스케일 */
+html { font-size: 14px; }
+html[data-fontsize="2"] { font-size: 16px; }
+html[data-fontsize="3"] { font-size: 18px; }
+html[data-fontsize="4"] { font-size: 20px; }
+
 @layer components {
   /* 기도 지향 텍스트 — 코펍 돋움 볼드, 차분한 색상 */
   .intention-text {
