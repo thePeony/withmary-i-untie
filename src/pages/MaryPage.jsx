@@ -29,7 +29,7 @@ export default function MaryPage() {
   return (
     <div className="min-h-screen pt-8 px-6 pb-20">
       {/* 헤더 */}
-      <div className="mb-6">
+      <div className="mb-8">
         <p className="text-[10px] tracking-[0.3em] text-gray-400 dark:text-gray-500 uppercase mb-1">
           About
         </p>
@@ -38,20 +38,12 @@ export default function MaryPage() {
         </h1>
       </div>
 
-      {/* 성화 */}
-      <div className="mb-8">
-        <img
-          src="/mary.jpg"
-          alt="매듭을 푸시는 성모님"
-          className="w-full rounded-lg object-cover"
-        />
-      </div>
-
       {/* 아코디언 */}
       <div className="divide-y divide-gray-100 dark:divide-gray-800">
         {categories.map((cat) => {
           const isOpen = openId === cat.id
-          const hasContent = cat.body && cat.body.trim().length > 0
+          const isPainting = cat.id === 'painting'
+          const hasContent = isPainting || (cat.body && cat.body.trim().length > 0)
 
           return (
             <div key={cat.id}>
@@ -72,9 +64,20 @@ export default function MaryPage() {
                 )}
               </button>
 
-              {isOpen && hasContent && (
-                <div className="pb-6 text-sm text-gray-600 dark:text-gray-300 leading-loose">
-                  {renderBody(cat.body)}
+              {isOpen && (
+                <div className="pb-6">
+                  {isPainting && (
+                    <img
+                      src="/mary.jpg"
+                      alt="매듭을 푸시는 성모님 성화"
+                      className="w-full rounded-lg object-cover mb-4"
+                    />
+                  )}
+                  {cat.body && cat.body.trim().length > 0 && (
+                    <div className="text-sm text-gray-600 dark:text-gray-300 leading-loose">
+                      {renderBody(cat.body)}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
