@@ -1,26 +1,11 @@
-import { useStore } from './store.jsx'
-import LoadingScreen from './components/LoadingScreen.jsx'
-import Intro from './components/Intro.jsx'
-import TabBar from './components/TabBar.jsx'
-import PrayerTab from './components/prayer/PrayerTab.jsx'
-import MaryTab from './components/mary/MaryTab.jsx'
-import SettingsTab from './components/settings/SettingsTab.jsx'
+import { useState } from 'react'
 
 export default function App() {
-  const { state } = useStore()
-  const { appPhase, activeTab } = state
-
-  if (appPhase === 'loading') return <LoadingScreen />
-  if (appPhase === 'intro') return <Intro />
-
   return (
-    <div className="app">
-      <main className="app-main">
-        {activeTab === 'prayer' && <PrayerTab />}
-        {activeTab === 'mary' && <MaryTab />}
-        {activeTab === 'settings' && <SettingsTab />}
-      </main>
-      <TabBar />
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-950">
+      <p className="text-gray-500 dark:text-gray-400 text-sm tracking-widest">
+        잠시 고요히 머뭅니다.
+      </p>
     </div>
   )
 }
