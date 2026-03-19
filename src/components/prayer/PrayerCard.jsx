@@ -5,8 +5,8 @@ import RosaryBeads from './RosaryBeads'
 const CARD_BASE = 'absolute inset-0 top-[60px] bottom-16 flex flex-col animate-fadein'
 const CARD_SCROLL = 'flex-1 overflow-y-auto px-6 py-4'
 
-// 타이틀: font-semibold (볼드)
-const TITLE_CLASS = 'text-sm font-semibold tracking-wide text-gray-700 dark:text-gray-200 mb-3'
+// 타이틀: font-bold
+const TITLE_CLASS = 'text-sm font-bold tracking-wide text-gray-700 dark:text-gray-200 mb-3'
 
 // 탭하여 계속: 우측 하단, 스크롤 밖 고정
 const CONTINUE_CLASS = 'shrink-0 text-right px-6 pb-3 text-[10px] text-gray-400 dark:text-gray-500 tracking-widest'
@@ -17,6 +17,8 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
   function renderBody(text) {
     if (!text) return null
     return text.split('\n').map((line, i) => {
+      // 빈 줄 (\n\n) → 줄 간격 블록
+      if (line === '') return <span key={i} className="block mt-3" />
       const parts = line.split(/(<u>.*?<\/u>)/g)
       return (
         <span key={i} className="block">
@@ -72,7 +74,7 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
                 </p>
               )
               if (part.type === 'source') return (
-                <p key={i} className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                <p key={i} className="text-xs text-gray-400 dark:text-gray-500 mt-2 text-center">
                   {part.text}
                 </p>
               )
