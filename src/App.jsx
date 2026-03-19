@@ -1,19 +1,31 @@
 import { useState } from 'react'
 import LoadingScreen from './components/LoadingScreen'
+import TabBar from './components/TabBar'
+import PrayerPage from './pages/PrayerPage'
+import MaryPage from './pages/MaryPage'
+import SettingsPage from './pages/SettingsPage'
 
 export default function App() {
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('prayer')
+
+  const pages = {
+    prayer: <PrayerPage />,
+    mary: <MaryPage />,
+    settings: <SettingsPage />,
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
       {loading && <LoadingScreen onDone={() => setLoading(false)} />}
 
       {!loading && (
-        <div className="flex items-center justify-center min-h-screen">
-          <p className="text-gray-300 dark:text-gray-700 text-xs tracking-widest">
-            준비 중입니다.
-          </p>
-        </div>
+        <>
+          <main className="pb-16 max-w-lg mx-auto">
+            {pages[activeTab]}
+          </main>
+          <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+        </>
       )}
     </div>
   )
