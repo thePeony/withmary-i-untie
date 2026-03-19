@@ -29,13 +29,22 @@ export default function MaryPage() {
   return (
     <div className="min-h-screen pt-8 px-6 pb-20">
       {/* 헤더 */}
-      <div className="mb-8">
+      <div className="mb-6">
         <p className="text-[10px] tracking-[0.3em] text-gray-400 dark:text-gray-500 uppercase mb-1">
           About
         </p>
         <h1 className="text-lg font-light text-gray-700 dark:text-gray-200">
           매듭을 푸시는 성모님
         </h1>
+      </div>
+
+      {/* 성화 */}
+      <div className="mb-8">
+        <img
+          src="/mary.jpg"
+          alt="매듭을 푸시는 성모님"
+          className="w-full rounded-lg object-cover"
+        />
       </div>
 
       {/* 아코디언 */}
