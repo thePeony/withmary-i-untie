@@ -2,17 +2,18 @@ import { useRef, useEffect } from 'react'
 import PrayerBlock from './PrayerBlock'
 
 export default function FlowScreen({ blocks, currentIndex, onAdvance }) {
-  const bottomRef = useRef(null)
+  const blockRefs = useRef({})
 
-  // 새 블록 추가될 때마다 아래로 스크롤
+  // 새 블록이 나타날 때 해당 블록 상단으로 부드럽게 스크롤
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    const el = blockRefs.current[currentIndex]
+    if (!el) return
+    const top = el.getBoundingClientRect().top + window.scrollY - 80
+    window.scrollTo({ top, behavior: 'smooth' })
   }, [currentIndex])
 
-  // 완료된 블록 + 현재 블록만 렌더링 (미래 블록은 숨김)
   const visibleBlocks = blocks.slice(0, currentIndex + 1)
 
-  // 섹션 헤더가 필요한 지점
   function getSectionAt(index) {
     if (index === 0) return blocks[0]?.section
     if (blocks[index]?.section !== blocks[index - 1]?.section) {
@@ -31,16 +32,15 @@ export default function FlowScreen({ blocks, currentIndex, onAdvance }) {
         return (
           <div
             key={block.id}
+            ref={(el) => { blockRefs.current[index] = el }}
             className="animate-block-in"
           >
-            {/* 섹션 구분 헤더 */}
             {sectionLabel && (
               <p className="text-[10px] tracking-[0.3em] text-gray-300 dark:text-gray-600 uppercase mt-10 mb-2 first:mt-0">
                 {sectionLabel}
               </p>
             )}
 
-            {/* 지나간 블록: 흐리게 */}
             <div className={isPast ? 'opacity-25 pointer-events-none' : ''}>
               <PrayerBlock
                 block={block}
@@ -53,18 +53,15 @@ export default function FlowScreen({ blocks, currentIndex, onAdvance }) {
         )
       })}
 
-      {/* 기도 완료 */}
       {currentIndex >= blocks.length && (
         <div className="flex flex-col items-center py-20 gap-3 animate-block-in">
           <p className="text-sm text-gray-400 dark:text-gray-500 tracking-widest">
             기도가 완료되었습니다.
           </p>
-          <p className="text-xs text-gray-300 dark:text-gray-600">🙏</p>
         </div>
       )}
 
-      {/* 스크롤 앵커 */}
-      <div ref={bottomRef} className="h-40" />
+      <div className="h-40" />
     </div>
   )
 }

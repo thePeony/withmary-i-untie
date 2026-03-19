@@ -37,7 +37,7 @@ export default function PrayerBlock({ block, isActive, onTap, onBeadsComplete })
       )
     }
     return (
-      <div className="mt-3 text-base text-gray-700 dark:text-gray-200 leading-loose whitespace-pre-line">
+      <div className="mt-2 text-sm text-gray-600 dark:text-gray-300 leading-loose whitespace-pre-line">
         {renderBody(block.body)}
       </div>
     )
@@ -59,7 +59,7 @@ export default function PrayerBlock({ block, isActive, onTap, onBeadsComplete })
           className="flex items-center justify-between py-4"
           onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
         >
-          <span className="text-xs tracking-widest text-gray-400 dark:text-gray-500">
+          <span className="text-base tracking-wide text-gray-600 dark:text-gray-300 font-medium">
             {block.title}
           </span>
           <span className={`text-gray-300 dark:text-gray-600 transition-transform duration-300 text-xs ${open ? 'rotate-180' : ''}`}>
@@ -90,7 +90,7 @@ export default function PrayerBlock({ block, isActive, onTap, onBeadsComplete })
       onClick={isActive && block.type !== 'rosary' ? onTap : undefined}
     >
       {block.title && (
-        <p className="text-[10px] tracking-widest text-gray-300 dark:text-gray-600 uppercase mb-1">
+        <p className="text-base tracking-wide text-gray-600 dark:text-gray-300 mb-2 font-medium">
           {block.title}
         </p>
       )}
