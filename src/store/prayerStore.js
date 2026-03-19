@@ -73,8 +73,30 @@ export function updateRecord(completedAt, patch) {
 
 export function deleteRecord(completedAt) {
   const history = loadHistory()
+  const deleted = history.find(r => r.completedAt === completedAt)
   const updated = history.filter(r => r.completedAt !== completedAt)
   localStorage.setItem(HISTORY_KEY, JSON.stringify(updated))
+
+  // 완료 후 대기 중인 휴식 화면과 일치하면 함께 삭제 → PrayerPage에 알림
+  const rest = loadRestState()
+  if (rest?.completedAt === completedAt) {
+    localStorage.removeItem(REST_KEY)
+    window.dispatchEvent(new CustomEvent('withmary-rest-cleared'))
+  }
+
+  // 진행 중인 세션과 같은 일차/날짜라면 함께 삭제 → PrayerPage에 알림
+  if (deleted) {
+    const state = loadState()
+    if (state) {
+      const sameDay =
+        new Date(state.date).toDateString() === new Date(completedAt).toDateString()
+      if (sameDay && state.dayNumber === deleted.dayNumber) {
+        localStorage.removeItem(KEY)
+        window.dispatchEvent(new CustomEvent('withmary-session-cleared'))
+      }
+    }
+  }
+
   return updated
 }
 

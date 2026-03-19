@@ -35,6 +35,25 @@ export default function PrayerPage() {
   const [restState, setRestState] = useState(null)
   const [nextStart, setNextStart] = useState(null)
 
+  // SettingsPage에서 기록 삭제 시 이벤트 수신 → React 상태 초기화
+  useEffect(() => {
+    function onRestCleared() {
+      setRestState(null)
+      setNextStart(null)
+    }
+    function onSessionCleared() {
+      setSession(null)
+      setSavedState(null)
+      setResumePrompt(false)
+    }
+    window.addEventListener('withmary-rest-cleared', onRestCleared)
+    window.addEventListener('withmary-session-cleared', onSessionCleared)
+    return () => {
+      window.removeEventListener('withmary-rest-cleared', onRestCleared)
+      window.removeEventListener('withmary-session-cleared', onSessionCleared)
+    }
+  }, [])
+
   // 마운트 시: restState 로드 + 이미 자정 지났으면 즉시 처리
   useEffect(() => {
     const rest = loadRestState()
