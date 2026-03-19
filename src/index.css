@@ -13,3 +13,14 @@
     @apply select-none;
   }
 }
+
+@layer utilities {
+  .animate-fadein {
+    animation: fadein 0.8s ease-in-out forwards;
+  }
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
