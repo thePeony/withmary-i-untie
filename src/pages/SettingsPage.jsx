@@ -231,7 +231,7 @@ export default function SettingsPage() {
                         autoFocus
                         className="w-full text-sm text-gray-700 dark:text-gray-200 bg-transparent border border-gray-200 dark:border-gray-700 rounded-lg p-3 resize-none focus:outline-none focus:border-gray-400 dark:focus:border-gray-500"
                       />
-                      <div className="flex gap-3">
+                      <div className="flex justify-between">
                         <button onClick={() => saveEditGroup(gIdx)} className="text-xs text-gray-600 dark:text-gray-300 tracking-wide">저장</button>
                         <button onClick={() => setEditingGroup(null)} className="text-xs text-gray-400 dark:text-gray-500 tracking-wide">취소</button>
                       </div>
