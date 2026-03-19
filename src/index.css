@@ -56,6 +56,8 @@
     font-weight: 300;
     @apply antialiased;
     @apply select-none;
+    word-break: keep-all;
+    overflow-wrap: break-word;
   }
 }
 
