@@ -71,6 +71,13 @@ export function updateRecord(completedAt, patch) {
   return updated
 }
 
+export function deleteRecord(completedAt) {
+  const history = loadHistory()
+  const updated = history.filter(r => r.completedAt !== completedAt)
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(updated))
+  return updated
+}
+
 // ─── 완료 후 휴식 상태 ────────────────────────────────────────
 const REST_KEY = 'withmary_rest'
 

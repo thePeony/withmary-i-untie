@@ -3,15 +3,51 @@ import { buildFlow } from '../data/flowBuilder'
 import FlowScreen from '../components/prayer/FlowScreen'
 import {
   saveState, loadState, clearState, saveRecord, loadSettings,
-  saveRestState, loadRestState, clearRestState,
+  saveRestState, loadRestState, clearRestState, loadHistory,
 } from '../store/prayerStore'
+
+// 기도 완료 다음날 0시 계산
+function nextMidnightAfter(isoString) {
+  const d = new Date(isoString)
+  const midnight = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)
+  return midnight
+}
+
+function isPastMidnight(isoString) {
+  return new Date() >= nextMidnightAfter(isoString)
+}
+
+// 히스토리 기반으로 StartScreen 초기값 계산
+function calcNextStart(rest) {
+  if (!rest) return null
+  if (rest.dayNumber >= 9) return null // 9일차 완료 → 첫 화면
+  // 히스토리에서 가장 최근 지향 확인 (편집했을 수 있으므로)
+  const history = loadHistory()
+  const last = history[0]
+  const intention = last?.intention ?? rest.intention ?? ''
+  return { day: rest.dayNumber + 1, intention }
+}
 
 export default function PrayerPage() {
   const [session, setSession] = useState(null)
   const [resumePrompt, setResumePrompt] = useState(false)
   const [savedState, setSavedState] = useState(null)
-  const [restState, setRestState] = useState(() => loadRestState())
+  const [restState, setRestState] = useState(null)
   const [nextStart, setNextStart] = useState(null)
+
+  // 마운트 시: restState 로드 + 이미 자정 지났으면 즉시 처리
+  useEffect(() => {
+    const rest = loadRestState()
+    if (!rest) return
+
+    if (isPastMidnight(rest.completedAt)) {
+      // 이미 0시 지남 → RestScreen 생략, 바로 다음 일차로
+      clearRestState()
+      setNextStart(calcNextStart(rest))
+    } else {
+      setRestState(rest)
+    }
+  }, [])
 
   useEffect(() => {
     const s = loadState()
@@ -34,6 +70,7 @@ export default function PrayerPage() {
     setResumePrompt(false)
     clearRestState()
     setRestState(null)
+    setNextStart(null)
   }
 
   function resume() {
@@ -69,17 +106,20 @@ export default function PrayerPage() {
     saveState({ ...updated, blocks: undefined })
   }, [session])
 
+  // 자정에 RestScreen 자동 종료
+  function handleMidnightDismiss() {
+    const rest = restState
+    clearRestState()
+    setRestState(null)
+    setNextStart(calcNextStart(rest))
+  }
+
   // ── 완료 후 쉬는 화면 ─────────────────────────────────────
   if (restState && !session && !resumePrompt) {
     return (
       <RestScreen
         restState={restState}
-        onDismiss={() => {
-          const next = restState
-          clearRestState()
-          setRestState(null)
-          setNextStart({ day: Math.min((next.dayNumber ?? 1) + 1, 9), intention: next.intention ?? '' })
-        }}
+        onMidnight={handleMidnightDismiss}
       />
     )
   }
@@ -119,7 +159,13 @@ export default function PrayerPage() {
     )
   }
 
-  if (!session) return <StartScreen onStart={startNew} initialDay={nextStart?.day} initialIntention={nextStart?.intention} />
+  if (!session) return (
+    <StartScreen
+      onStart={startNew}
+      initialDay={nextStart?.day}
+      initialIntention={nextStart?.intention}
+    />
+  )
 
   return (
     <FlowScreen
@@ -132,10 +178,19 @@ export default function PrayerPage() {
 }
 
 // ─── 완료 후 쉬는 화면 ───────────────────────────────────────
-function RestScreen({ restState, onDismiss }) {
+function RestScreen({ restState, onMidnight }) {
   const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
   const d = new Date(restState.completedAt)
   const dateStr = `${d.getMonth() + 1}월 ${d.getDate()}일 (${DAY_LABELS[d.getDay()]})`
+
+  // 다음날 0시에 자동 전환
+  useEffect(() => {
+    const midnight = nextMidnightAfter(restState.completedAt)
+    const msUntil = midnight - Date.now()
+    if (msUntil <= 0) { onMidnight(); return }
+    const timer = setTimeout(onMidnight, msUntil)
+    return () => clearTimeout(timer)
+  }, [restState.completedAt, onMidnight])
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-8 pb-20">
@@ -161,14 +216,6 @@ function RestScreen({ restState, onDismiss }) {
           내일 만나요
         </p>
       </div>
-
-      {/* 닫기 — 아주 작게 */}
-      <button
-        onClick={onDismiss}
-        className="absolute bottom-24 text-[10px] tracking-widest text-gray-200 dark:text-gray-700"
-      >
-        닫기
-      </button>
     </div>
   )
 }
