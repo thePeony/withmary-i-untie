@@ -19,9 +19,13 @@ export default function RosaryBeads({ count = 10, onComplete, blockId }) {
 
   return (
     <div data-rosary className="select-none h-full" onClick={handleTap}>
-      <p className="text-sm text-gray-600 dark:text-gray-300 leading-loose whitespace-pre-line mb-6">
-        {hailMaryText}
-      </p>
+      <div className="text-sm text-gray-600 dark:text-gray-300 leading-loose mb-6">
+        {hailMaryText.split('\n').map((line, i) =>
+          line === ''
+            ? <span key={i} className="block mt-3" />
+            : <span key={i} className="block">{line}</span>
+        )}
+      </div>
 
       {/* 묵주알 */}
       <div className="flex items-center justify-center gap-2 py-4">

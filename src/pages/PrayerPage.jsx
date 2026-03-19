@@ -11,6 +11,7 @@ export default function PrayerPage() {
   const [resumePrompt, setResumePrompt] = useState(false)
   const [savedState, setSavedState] = useState(null)
   const [restState, setRestState] = useState(() => loadRestState())
+  const [nextStart, setNextStart] = useState(null)
 
   useEffect(() => {
     const s = loadState()
@@ -73,7 +74,12 @@ export default function PrayerPage() {
     return (
       <RestScreen
         restState={restState}
-        onDismiss={() => { clearRestState(); setRestState(null) }}
+        onDismiss={() => {
+          const next = restState
+          clearRestState()
+          setRestState(null)
+          setNextStart({ day: Math.min((next.dayNumber ?? 1) + 1, 9), intention: next.intention ?? '' })
+        }}
       />
     )
   }
@@ -113,7 +119,7 @@ export default function PrayerPage() {
     )
   }
 
-  if (!session) return <StartScreen onStart={startNew} />
+  if (!session) return <StartScreen onStart={startNew} initialDay={nextStart?.day} initialIntention={nextStart?.intention} />
 
   return (
     <FlowScreen
@@ -168,14 +174,14 @@ function RestScreen({ restState, onDismiss }) {
 }
 
 // ─── 시작 화면 ───────────────────────────────────────────────
-function StartScreen({ onStart }) {
-  const [day, setDay] = useState(1)
-  const [intention, setIntention] = useState('')
+function StartScreen({ onStart, initialDay, initialIntention }) {
+  const [day, setDay] = useState(initialDay ?? 1)
+  const [intention, setIntention] = useState(initialIntention ?? '')
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-8 gap-10">
       <div className="text-center space-y-2">
-        <p className="text-xs tracking-[0.3em] text-gray-300 dark:text-gray-600 uppercase">
+        <p className="text-sm tracking-[0.3em] text-[#8b6f62] dark:text-[#c4a08a]">
           매듭을 푸시는 성모님
         </p>
         <p className="text-lg font-light text-gray-700 dark:text-gray-200">
@@ -185,7 +191,7 @@ function StartScreen({ onStart }) {
 
       <div className="w-full max-w-xs space-y-6">
         <div>
-          <p className="text-xs tracking-widest text-gray-400 dark:text-gray-500 mb-2">일차</p>
+          <p className="text-sm tracking-widest text-[#8b6f62] dark:text-[#c4a08a] mb-2">일차</p>
           <div className="grid grid-cols-9 gap-1">
             {Array.from({ length: 9 }, (_, i) => i + 1).map((d) => (
               <button
@@ -205,7 +211,7 @@ function StartScreen({ onStart }) {
         </div>
 
         <div>
-          <p className="text-xs tracking-widest text-gray-400 dark:text-gray-500 mb-2">지향 (선택)</p>
+          <p className="text-sm tracking-widest text-[#8b6f62] dark:text-[#c4a08a] mb-2">지향 (선택)</p>
           <textarea
             value={intention}
             onChange={(e) => setIntention(e.target.value)}
@@ -214,7 +220,7 @@ function StartScreen({ onStart }) {
             className={[
               'w-full text-sm text-gray-700 dark:text-gray-200 resize-none',
               'bg-transparent border border-gray-100 dark:border-gray-800 rounded-lg',
-              'p-3 placeholder:text-gray-200 dark:placeholder:text-gray-700',
+              'p-3 placeholder:text-[#8b6f62]/40 dark:placeholder:text-[#c4a08a]/30',
               'focus:outline-none focus:border-gray-300 dark:focus:border-gray-600',
             ].join(' ')}
           />

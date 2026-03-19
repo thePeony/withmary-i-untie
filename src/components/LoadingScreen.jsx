@@ -24,7 +24,7 @@ export default function LoadingScreen({ onDone }) {
         phase === 'out' ? 'opacity-0' : '',
       ].join(' ')}
     >
-      <p className="text-gray-400 dark:text-gray-500 text-sm tracking-[0.3em] font-light">
+      <p className="text-[#8b6f62] dark:text-[#c4a08a] text-sm tracking-[0.3em] font-light">
         잠시 고요히 머뭅니다.
       </p>
     </div>
