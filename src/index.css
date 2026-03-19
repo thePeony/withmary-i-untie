@@ -1,3 +1,19 @@
+/* 코펍 배탕 폰트 */
+@font-face {
+  font-family: 'KoPubBatang';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2109@1.0/KoPubWorldBatangPL.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'KoPubBatang';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2109@1.0/KoPubWorldBatangPM.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -9,7 +25,8 @@
 
   body {
     @apply bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100;
-    @apply font-sans antialiased;
+    font-family: 'KoPubBatang', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    @apply antialiased;
     @apply select-none;
   }
 }
@@ -18,9 +35,23 @@
   .animate-fadein {
     animation: fadein 0.8s ease-in-out forwards;
   }
+  .animate-block-in {
+    animation: blockIn 0.5s ease-out forwards;
+  }
 }
 
 @keyframes fadein {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+
+@keyframes blockIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

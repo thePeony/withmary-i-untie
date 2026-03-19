@@ -2,18 +2,17 @@ import { useRef, useEffect } from 'react'
 import PrayerBlock from './PrayerBlock'
 
 export default function FlowScreen({ blocks, currentIndex, onAdvance }) {
-  const containerRef = useRef(null)
+  const bottomRef = useRef(null)
 
-  // 현재 블록으로 자동 스크롤
+  // 새 블록 추가될 때마다 아래로 스크롤
   useEffect(() => {
-    if (!containerRef.current) return
-    const el = containerRef.current.querySelector(`[data-block-index="${currentIndex}"]`)
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }, [currentIndex])
 
-  // 섹션이 바뀌는 지점에 헤더 표시
+  // 완료된 블록 + 현재 블록만 렌더링 (미래 블록은 숨김)
+  const visibleBlocks = blocks.slice(0, currentIndex + 1)
+
+  // 섹션 헤더가 필요한 지점
   function getSectionAt(index) {
     if (index === 0) return blocks[0]?.section
     if (blocks[index]?.section !== blocks[index - 1]?.section) {
@@ -23,60 +22,49 @@ export default function FlowScreen({ blocks, currentIndex, onAdvance }) {
   }
 
   return (
-    <div ref={containerRef} className="px-6 pt-8">
-      {blocks.map((block, index) => {
+    <div className="px-6 pt-8">
+      {visibleBlocks.map((block, index) => {
         const sectionLabel = getSectionAt(index)
         const isActive = index === currentIndex
         const isPast = index < currentIndex
 
         return (
-          <div key={block.id} data-block-index={index}>
+          <div
+            key={block.id}
+            className="animate-block-in"
+          >
             {/* 섹션 구분 헤더 */}
             {sectionLabel && (
-              <p className="text-[10px] tracking-[0.3em] text-gray-300 dark:text-gray-600 uppercase mt-8 mb-2">
+              <p className="text-[10px] tracking-[0.3em] text-gray-300 dark:text-gray-600 uppercase mt-10 mb-2 first:mt-0">
                 {sectionLabel}
               </p>
             )}
 
-            {/* 지나간 블록은 흐리게 */}
-            <div
-              className={[
-                'transition-opacity duration-500',
-                isPast ? 'opacity-30' : 'opacity-100',
-              ].join(' ')}
-            >
+            {/* 지나간 블록: 흐리게 */}
+            <div className={isPast ? 'opacity-25 pointer-events-none' : ''}>
               <PrayerBlock
                 block={block}
-                onBeadsComplete={() => {
-                  // 묵주알 완료 → 즉시 다음으로
-                  if (isActive) onAdvance()
-                }}
+                isActive={isActive}
+                onTap={isActive && block.type !== 'rosary' ? onAdvance : undefined}
+                onBeadsComplete={isActive ? onAdvance : undefined}
               />
             </div>
-
-            {/* 현재 블록 다음으로 탭 영역 (rosary 타입은 RosaryBeads 자체가 처리) */}
-            {isActive && block.type !== 'rosary' && (
-              <button
-                onClick={onAdvance}
-                className="w-full py-5 text-center text-xs text-gray-300 dark:text-gray-600 tracking-widest active:opacity-50 transition-opacity"
-              >
-                탭하여 계속
-              </button>
-            )}
           </div>
         )
       })}
 
       {/* 기도 완료 */}
       {currentIndex >= blocks.length && (
-        <div className="flex flex-col items-center py-20 gap-4">
+        <div className="flex flex-col items-center py-20 gap-3 animate-block-in">
           <p className="text-sm text-gray-400 dark:text-gray-500 tracking-widest">
             기도가 완료되었습니다.
           </p>
+          <p className="text-xs text-gray-300 dark:text-gray-600">🙏</p>
         </div>
       )}
 
-      <div className="h-32" />
+      {/* 스크롤 앵커 */}
+      <div ref={bottomRef} className="h-40" />
     </div>
   )
 }

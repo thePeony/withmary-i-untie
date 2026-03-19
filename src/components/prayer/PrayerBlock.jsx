@@ -2,14 +2,15 @@ import { useState } from 'react'
 import RosaryBeads from './RosaryBeads'
 
 /**
- * 기도 한 블록을 렌더링하는 컴포넌트
- * type: 'text' | 'rosary'
- * collapsible: true/false
+ * 기도 한 블록
+ * isActive: 현재 진행 중인 블록
+ * onTap: 탭하면 다음으로 (text 타입만)
+ * onBeadsComplete: 묵주알 10개 완료 시
  */
-export default function PrayerBlock({ block, onBeadsComplete }) {
+export default function PrayerBlock({ block, isActive, onTap, onBeadsComplete }) {
   const [open, setOpen] = useState(block.defaultOpen !== false)
 
-  // ── 인라인 태그 처리 (<u> 밑줄) ──────────────────────────
+  // <u>...</u> 처리
   function renderBody(text) {
     if (!text) return null
     return text.split('\n').map((line, i) => {
@@ -27,58 +28,78 @@ export default function PrayerBlock({ block, onBeadsComplete }) {
     })
   }
 
-  // ── 내용 렌더 ────────────────────────────────────────────
   function renderContent() {
     if (block.type === 'rosary') {
       return (
         <div className="mt-4">
-          <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4 whitespace-pre-line">
-            {/* 성모송 본문은 RosaryBeads 컴포넌트 안에서 보여줌 */}
-          </p>
           <RosaryBeads count={block.count} onComplete={onBeadsComplete} blockId={block.id} />
         </div>
       )
     }
     return (
-      <div className="mt-3 text-sm text-gray-600 dark:text-gray-300 leading-loose whitespace-pre-line">
+      <div className="mt-3 text-base text-gray-700 dark:text-gray-200 leading-loose whitespace-pre-line">
         {renderBody(block.body)}
       </div>
     )
   }
 
-  // ── 접기 가능한 블록 ─────────────────────────────────────
+  // ── 접기 블록 ─────────────────────────────────────────────
   if (block.collapsible) {
     return (
-      <div className="border-b border-gray-100 dark:border-gray-800">
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="w-full flex items-center justify-between py-4 text-left"
+      <div
+        className={`border-b border-gray-100 dark:border-gray-800 ${isActive && block.type !== 'rosary' ? 'cursor-pointer' : ''}`}
+        onClick={isActive && block.type !== 'rosary' ? (e) => {
+          // 접기 버튼 클릭은 토글만, 나머지 영역 탭은 진행
+          if (e.target.closest('[data-toggle]')) return
+          onTap?.()
+        } : undefined}
+      >
+        <div
+          data-toggle
+          className="flex items-center justify-between py-4"
+          onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
         >
-          <span className="text-xs tracking-widest text-gray-400 dark:text-gray-500 uppercase">
+          <span className="text-xs tracking-widest text-gray-400 dark:text-gray-500">
             {block.title}
           </span>
-          <span className={`text-gray-300 dark:text-gray-600 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}>
+          <span className={`text-gray-300 dark:text-gray-600 transition-transform duration-300 text-xs ${open ? 'rotate-180' : ''}`}>
             ▾
           </span>
-        </button>
+        </div>
         {open && (
-          <div className="pb-6">
+          <div className="pb-5">
             {renderContent()}
           </div>
+        )}
+        {isActive && block.type !== 'rosary' && (
+          <p className="text-center text-[10px] text-gray-200 dark:text-gray-700 tracking-widest pb-4">
+            탭하여 계속
+          </p>
         )}
       </div>
     )
   }
 
-  // ── 일반 블록 ────────────────────────────────────────────
+  // ── 일반 블록 ─────────────────────────────────────────────
   return (
-    <div className="py-6 border-b border-gray-100 dark:border-gray-800">
+    <div
+      className={[
+        'py-6 border-b border-gray-100 dark:border-gray-800',
+        isActive && block.type !== 'rosary' ? 'cursor-pointer active:opacity-70' : '',
+      ].join(' ')}
+      onClick={isActive && block.type !== 'rosary' ? onTap : undefined}
+    >
       {block.title && (
         <p className="text-[10px] tracking-widest text-gray-300 dark:text-gray-600 uppercase mb-1">
           {block.title}
         </p>
       )}
       {renderContent()}
+      {isActive && block.type !== 'rosary' && (
+        <p className="text-[10px] text-gray-200 dark:text-gray-700 tracking-widest mt-4">
+          탭하여 계속 ↓
+        </p>
+      )}
     </div>
   )
 }

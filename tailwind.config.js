@@ -8,7 +8,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Apple SD Gothic Neo', 'Noto Sans KR', 'sans-serif'],
+        sans: ['KoPubBatang', 'Apple SD Gothic Neo', 'Noto Sans KR', 'sans-serif'],
+        kopub: ['KoPubBatang', 'serif'],
       },
     },
   },
