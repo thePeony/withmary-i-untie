@@ -64,6 +64,7 @@ html[data-fontsize="4"] { font-size: 20px; }
     @apply select-none;
     word-break: keep-all;
     overflow-wrap: break-word;
+    overflow-x: hidden;
   }
 }
 

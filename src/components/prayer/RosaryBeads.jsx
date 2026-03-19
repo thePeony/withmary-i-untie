@@ -27,17 +27,18 @@ export default function RosaryBeads({ count = 10, onComplete, blockId }) {
         )}
       </div>
 
-      {/* 묵주알 */}
-      <div className="flex items-center justify-center gap-2 py-4">
+      {/* 묵주알 — 글씨 크기 설정에 영향받지 않도록 px 고정 */}
+      <div className="flex items-center justify-center py-4 overflow-x-hidden" style={{ gap: '8px' }}>
         {Array.from({ length: count }).map((_, i) => (
           <div
             key={i}
             className={[
-              'w-6 h-6 shrink-0 rounded-full border transition-all duration-200',
+              'shrink-0 rounded-full border transition-all duration-200',
               i < filled
                 ? 'bg-gray-800 dark:bg-gray-100 border-gray-800 dark:border-gray-100 scale-90'
                 : 'bg-transparent border-gray-300 dark:border-gray-600',
             ].join(' ')}
+            style={{ width: '24px', height: '24px', minWidth: '24px', minHeight: '24px' }}
           />
         ))}
       </div>
