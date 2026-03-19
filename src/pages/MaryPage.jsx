@@ -16,7 +16,7 @@ export default function MaryPage() {
     <div className="min-h-screen pt-8 px-6 pb-20">
       {/* 헤더 */}
       <div className="mb-8">
-        <p className="text-[10px] tracking-[0.3em] text-gray-300 dark:text-gray-600 uppercase mb-1">
+        <p className="text-[10px] tracking-[0.3em] text-gray-400 dark:text-gray-500 uppercase mb-1">
           About
         </p>
         <h1 className="text-lg font-light text-gray-700 dark:text-gray-200">
@@ -43,7 +43,7 @@ export default function MaryPage() {
                   {cat.title}
                 </span>
                 {hasContent && (
-                  <span className={`text-gray-300 dark:text-gray-600 transition-transform duration-300 text-xs ${isOpen ? 'rotate-180' : ''}`}>
+                  <span className={`text-gray-500 dark:text-gray-400 transition-transform duration-300 text-base leading-none ${isOpen ? 'rotate-180' : ''}`}>
                     ▾
                   </span>
                 )}

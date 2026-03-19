@@ -195,7 +195,7 @@ function RestScreen({ restState, onMidnight }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-8 pb-20">
       <div className="text-center space-y-5 max-w-xs w-full">
-        <p className="text-xs tracking-[0.3em] text-gray-300 dark:text-gray-600 uppercase">
+        <p className="text-xs tracking-widest text-gray-400 dark:text-gray-500">
           기도 완료
         </p>
 
@@ -203,11 +203,11 @@ function RestScreen({ restState, onMidnight }) {
           <p className="text-2xl font-light text-gray-700 dark:text-gray-200">
             {restState.dayNumber}일차
           </p>
-          <p className="text-xs text-gray-300 dark:text-gray-600">{dateStr}</p>
+          <p className="text-xs tracking-widest text-gray-400 dark:text-gray-500">{dateStr}</p>
         </div>
 
         {restState.intention && (
-          <p className="text-sm text-gray-500 dark:text-gray-400 leading-loose italic border-t border-gray-100 dark:border-gray-800 pt-5">
+          <p className="intention-text text-sm leading-loose italic border-t border-gray-100 dark:border-gray-800 pt-5">
             "{restState.intention}"
           </p>
         )}

@@ -1,7 +1,7 @@
 const TABS = [
   { id: 'prayer',   label: '기도' },
-  { id: 'mary',     label: '성모님' },
-  { id: 'settings', label: '설정·기록' },
+  { id: 'mary',     label: '매듭을 푸시는 성모님' },
+  { id: 'settings', label: '기록' },
 ]
 
 export default function TabBar({ activeTab, onTabChange }) {

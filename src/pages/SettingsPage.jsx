@@ -11,7 +11,6 @@ function formatDate(isoString) {
   return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, '0')} (${DAY_LABELS[d.getDay()]})`
 }
 
-// on = 보이는 상태 (켜짐 = 색 채움)
 function ToggleRow({ label, on, onToggle, last = false }) {
   return (
     <div className={`flex items-center justify-between py-4 ${last ? '' : 'border-b border-gray-100 dark:border-gray-800'}`}>
@@ -19,25 +18,21 @@ function ToggleRow({ label, on, onToggle, last = false }) {
       <button
         onClick={onToggle}
         className={[
-          'w-12 h-6 rounded-full transition-colors duration-300 relative',
+          'w-12 h-6 rounded-full transition-colors duration-300 relative overflow-hidden shrink-0',
           on ? 'bg-gray-800 dark:bg-gray-200' : 'bg-gray-200 dark:bg-gray-700',
         ].join(' ')}
       >
         <span className={[
-          'absolute top-1 w-4 h-4 rounded-full bg-white transition-transform duration-300',
-          on ? 'translate-x-7' : 'translate-x-1',
+          'absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform duration-300',
+          on ? 'translate-x-6' : 'translate-x-0',
         ].join(' ')} />
       </button>
     </div>
   )
 }
 
-// 기록을 노베나(9일기도) 세션 단위로 그룹화
-// dayNumber === 1 일 때 새 세션 시작으로 판단
 function groupHistory(history) {
   if (history.length === 0) return []
-
-  // 오래된 것부터 처리 (history는 최신-우선)
   const oldestFirst = [...history].reverse()
   const groups = []
   let current = null
@@ -45,22 +40,17 @@ function groupHistory(history) {
   for (const record of oldestFirst) {
     if (!current || record.dayNumber === 1) {
       if (current) groups.push(current)
-      current = {
-        intention: record.intention ?? '',
-        records: [record],
-      }
+      current = { intention: record.intention ?? '', records: [record] }
     } else {
       current.records.push(record)
-      // 지향이 수정됐을 수 있으니 최신 기록 것 사용
       current.intention = record.intention ?? current.intention
     }
   }
   if (current) groups.push(current)
 
-  // 최신 그룹이 앞으로
   return groups.reverse().map(g => ({
     intention: g.records[g.records.length - 1].intention ?? g.records[0].intention ?? '',
-    records: [...g.records].reverse(), // 최신-우선
+    records: [...g.records].reverse(),
     isComplete: g.records.some(r => r.dayNumber === 9),
   }))
 }
@@ -68,8 +58,8 @@ function groupHistory(history) {
 export default function SettingsPage() {
   const [history, setHistory] = useState([])
   const [groups, setGroups] = useState([])
-  const [expandedGroup, setExpandedGroup] = useState(0) // 첫 번째(최신) 그룹 기본 열림
-  const [editingGroup, setEditingGroup] = useState(null) // 편집 중인 그룹 인덱스
+  const [expandedGroup, setExpandedGroup] = useState(0)
+  const [editingGroup, setEditingGroup] = useState(null)
   const [editText, setEditText] = useState('')
   const [importError, setImportError] = useState(false)
   const [darkMode, setDarkMode] = useState(
@@ -83,13 +73,6 @@ export default function SettingsPage() {
     setHistory(h)
     setGroups(groupHistory(h))
   }, [])
-
-  function refreshHistory() {
-    const h = loadHistory()
-    setHistory(h)
-    const g = groupHistory(h)
-    setGroups(g)
-  }
 
   function toggleDark() {
     const next = !darkMode
@@ -105,7 +88,6 @@ export default function SettingsPage() {
     saveSettings(next)
   }
 
-  // 지향 수정 — 그룹 내 모든 레코드에 적용
   function startEditGroup(groupIdx) {
     setEditingGroup(groupIdx)
     setEditText(groups[groupIdx].intention)
@@ -122,7 +104,6 @@ export default function SettingsPage() {
     setEditingGroup(null)
   }
 
-  // 개별 일차 삭제
   function handleDelete(completedAt) {
     const updated = deleteRecord(completedAt)
     setHistory(updated)
@@ -152,7 +133,7 @@ export default function SettingsPage() {
 
       {/* 설정 */}
       <div className="mb-10">
-        <p className="text-[10px] tracking-[0.3em] text-gray-300 dark:text-gray-600 uppercase mb-4">
+        <p className="text-xs tracking-widest text-gray-400 dark:text-gray-500 uppercase mb-4">
           설정
         </p>
         <ToggleRow label="다크 모드" on={darkMode} onToggle={toggleDark} />
@@ -167,19 +148,19 @@ export default function SettingsPage() {
       {/* 기도 기록 */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <p className="text-[10px] tracking-[0.3em] text-gray-300 dark:text-gray-600 uppercase">
+          <p className="text-xs tracking-widest text-gray-400 dark:text-gray-500">
             기도 기록
           </p>
-          <div className="flex gap-3">
+          <div className="flex gap-4">
             <button
               onClick={exportHistory}
-              className="text-[10px] tracking-widest text-gray-400 dark:text-gray-500"
+              className="text-xs tracking-widest text-gray-400 dark:text-gray-500"
             >
               내보내기
             </button>
             <button
               onClick={() => fileRef.current?.click()}
-              className="text-[10px] tracking-widest text-gray-400 dark:text-gray-500"
+              className="text-xs tracking-widest text-gray-400 dark:text-gray-500"
             >
               불러오기
             </button>
@@ -198,7 +179,7 @@ export default function SettingsPage() {
         )}
 
         {groups.length === 0 ? (
-          <p className="text-sm text-gray-300 dark:text-gray-600 py-8 text-center">
+          <p className="text-sm text-gray-400 dark:text-gray-500 py-8 text-center">
             완료된 기도가 없습니다.
           </p>
         ) : (
@@ -209,7 +190,6 @@ export default function SettingsPage() {
 
               return (
                 <div key={gIdx}>
-                  {/* ── 그룹 헤더: 지향 + 수정 ── */}
                   {isEditing ? (
                     <div className="py-4 space-y-2">
                       <textarea
@@ -220,18 +200,8 @@ export default function SettingsPage() {
                         className="w-full text-sm text-gray-700 dark:text-gray-200 bg-transparent border border-gray-200 dark:border-gray-700 rounded-lg p-3 resize-none focus:outline-none focus:border-gray-400 dark:focus:border-gray-500"
                       />
                       <div className="flex gap-3">
-                        <button
-                          onClick={() => saveEditGroup(gIdx)}
-                          className="text-xs text-gray-600 dark:text-gray-300 tracking-wide"
-                        >
-                          저장
-                        </button>
-                        <button
-                          onClick={() => setEditingGroup(null)}
-                          className="text-xs text-gray-300 dark:text-gray-600 tracking-wide"
-                        >
-                          취소
-                        </button>
+                        <button onClick={() => saveEditGroup(gIdx)} className="text-xs text-gray-600 dark:text-gray-300 tracking-wide">저장</button>
+                        <button onClick={() => setEditingGroup(null)} className="text-xs text-gray-400 dark:text-gray-500 tracking-wide">취소</button>
                       </div>
                     </div>
                   ) : (
@@ -244,38 +214,37 @@ export default function SettingsPage() {
                           'text-sm',
                           group.intention
                             ? 'text-gray-700 dark:text-gray-200'
-                            : 'text-gray-300 dark:text-gray-600 italic',
+                            : 'text-gray-400 dark:text-gray-500 italic',
                         ].join(' ')}>
                           {group.intention || '지향 없음'}
                         </span>
                       </button>
                       <button
                         onClick={() => startEditGroup(gIdx)}
-                        className="ml-4 text-xs text-gray-400 dark:text-gray-500 tracking-wide shrink-0"
+                        className="ml-4 text-xs tracking-widest text-gray-400 dark:text-gray-500 shrink-0"
                       >
                         수정
                       </button>
                     </div>
                   )}
 
-                  {/* ── 펼침: 일차별 날짜 + 삭제 ── */}
                   {isOpen && !isEditing && (
-                    <div className="pb-3 space-y-0">
+                    <div className="pb-3">
                       {group.records.map((record) => (
                         <div
                           key={record.completedAt}
-                          className="flex items-center justify-between py-2.5 border-t border-gray-50 dark:border-gray-800/60"
+                          className="flex items-center justify-between py-2.5 border-t border-gray-100 dark:border-gray-800"
                         >
                           <span className="text-sm text-gray-500 dark:text-gray-400">
                             {record.dayNumber}일차
                           </span>
                           <div className="flex items-center gap-4">
-                            <span className="text-xs text-gray-300 dark:text-gray-600">
+                            <span className="text-xs text-gray-400 dark:text-gray-500">
                               {formatDate(record.completedAt)}
                             </span>
                             <button
                               onClick={() => handleDelete(record.completedAt)}
-                              className="text-xs text-gray-300 dark:text-gray-600 tracking-wide"
+                              className="text-xs tracking-widest text-gray-400 dark:text-gray-500"
                             >
                               삭제
                             </button>
