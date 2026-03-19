@@ -42,7 +42,7 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
           }
         }}
       >
-        <div className="flex-1 overflow-y-auto overscroll-none pt-3 pb-4 overflow-x-hidden">
+        <div className="flex-1 overflow-hidden pt-3 pb-4">
           <p className={`${TITLE_CLASS} px-6`}>{block.title}</p>
           <RosaryBeads count={block.count} onComplete={onBeadsComplete} blockId={block.id} />
         </div>
