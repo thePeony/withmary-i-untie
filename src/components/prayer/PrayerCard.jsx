@@ -17,7 +17,7 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
   function renderInline(text) {
     return text.split(/(<u>.*?<\/u>|<b>.*?<\/b>)/g).map((chunk, j) => {
       if (chunk.startsWith('<u>') && chunk.endsWith('</u>')) return <u key={j}>{chunk.slice(3, -4)}</u>
-      if (chunk.startsWith('<b>') && chunk.endsWith('</b>')) return <strong key={j} className="font-bold">{chunk.slice(3, -4)}</strong>
+      if (chunk.startsWith('<b>') && chunk.endsWith('</b>')) return <span key={j} className="intention-text">{chunk.slice(3, -4)}</span>
       return <span key={j}>{chunk}</span>
     })
   }
@@ -61,14 +61,14 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
           <div className="text-sm text-gray-600 dark:text-gray-300 leading-loose">
             {block.parts.map((part, i) => {
               if (part.type === 'title') return (
-                <p key={i} className="font-semibold text-gray-700 dark:text-gray-200 whitespace-pre-line">
-                  {renderInline(part.text)}
-                </p>
+                <div key={i} className="font-semibold text-gray-700 dark:text-gray-200">
+                  {renderBody(part.text)}
+                </div>
               )
               if (part.type === 'quote') return (
-                <p key={i} className="whitespace-pre-line mt-6">
-                  {renderInline(part.text)}
-                </p>
+                <div key={i} className={i > 0 ? 'mt-6' : ''}>
+                  {renderBody(part.text)}
+                </div>
               )
               if (part.type === 'source') return (
                 <p key={i} className="text-xs text-gray-400 dark:text-gray-500 mt-2 text-center">
@@ -76,9 +76,9 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
                 </p>
               )
               if (part.type === 'meditation') return (
-                <p key={i} className="whitespace-pre-line mt-6">
-                  {renderInline(part.text)}
-                </p>
+                <div key={i} className="mt-6">
+                  {renderBody(part.text)}
+                </div>
               )
               return null
             })}

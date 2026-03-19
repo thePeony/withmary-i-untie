@@ -71,6 +71,26 @@ export function updateRecord(completedAt, patch) {
   return updated
 }
 
+// ─── 완료 후 휴식 상태 ────────────────────────────────────────
+const REST_KEY = 'withmary_rest'
+
+export function saveRestState(state) {
+  localStorage.setItem(REST_KEY, JSON.stringify(state))
+}
+
+export function loadRestState() {
+  try {
+    const raw = localStorage.getItem(REST_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+export function clearRestState() {
+  localStorage.removeItem(REST_KEY)
+}
+
 // ─── 기록 내보내기 / 불러오기 ─────────────────────────────────
 export function exportHistory() {
   const history = loadHistory()

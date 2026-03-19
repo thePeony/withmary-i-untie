@@ -1,14 +1,17 @@
 import { useState, useEffect, useCallback } from 'react'
 import { buildFlow } from '../data/flowBuilder'
 import FlowScreen from '../components/prayer/FlowScreen'
-import { saveState, loadState, clearState, saveRecord, loadSettings } from '../store/prayerStore'
+import {
+  saveState, loadState, clearState, saveRecord, loadSettings,
+  saveRestState, loadRestState, clearRestState,
+} from '../store/prayerStore'
 
 export default function PrayerPage() {
-  const [session, setSession] = useState(null)   // { dayNumber, date, blocks, currentIndex, intention }
+  const [session, setSession] = useState(null)
   const [resumePrompt, setResumePrompt] = useState(false)
   const [savedState, setSavedState] = useState(null)
+  const [restState, setRestState] = useState(() => loadRestState())
 
-  // 앱 시작 시 저장된 상태 확인
   useEffect(() => {
     const s = loadState()
     if (s && s.currentIndex < s.totalBlocks && s.currentIndex > 0) {
@@ -17,25 +20,21 @@ export default function PrayerPage() {
     }
   }, [])
 
-  // 새 기도 시작
   function startNew(dayNumber = 1, intention = '') {
     const date = new Date()
     const settings = loadSettings()
     const blocks = buildFlow(dayNumber, date, settings, intention)
     const newSession = {
-      dayNumber,
-      date: date.toISOString(),
-      blocks,
-      currentIndex: 0,
-      intention,
-      totalBlocks: blocks.length,
+      dayNumber, date: date.toISOString(), blocks,
+      currentIndex: 0, intention, totalBlocks: blocks.length,
     }
     setSession(newSession)
     saveState({ ...newSession, blocks: undefined, totalBlocks: blocks.length })
     setResumePrompt(false)
+    clearRestState()
+    setRestState(null)
   }
 
-  // 재개
   function resume() {
     if (!savedState) return
     const date = new Date(savedState.date)
@@ -45,7 +44,6 @@ export default function PrayerPage() {
     setResumePrompt(false)
   }
 
-  // 다음 블록으로
   const advance = useCallback(() => {
     if (!session) return
     const next = session.currentIndex + 1
@@ -54,11 +52,14 @@ export default function PrayerPage() {
     saveState({ ...updated, blocks: undefined })
     if (next >= session.blocks.length) {
       saveRecord({ dayNumber: session.dayNumber, date: session.date, intention: session.intention })
+      const rest = { dayNumber: session.dayNumber, intention: session.intention, completedAt: new Date().toISOString() }
+      saveRestState(rest)
+      setRestState(rest)
       clearState()
+      setSession(null)
     }
   }, [session])
 
-  // 이전 블록으로
   const goBack = useCallback(() => {
     if (!session || session.currentIndex <= 0) return
     const prev = session.currentIndex - 1
@@ -66,6 +67,16 @@ export default function PrayerPage() {
     setSession(updated)
     saveState({ ...updated, blocks: undefined })
   }, [session])
+
+  // ── 완료 후 쉬는 화면 ─────────────────────────────────────
+  if (restState && !session && !resumePrompt) {
+    return (
+      <RestScreen
+        restState={restState}
+        onDismiss={() => { clearRestState(); setRestState(null) }}
+      />
+    )
+  }
 
   // ── 재개 프롬프트 ─────────────────────────────────────────
   if (resumePrompt && savedState) {
@@ -102,12 +113,8 @@ export default function PrayerPage() {
     )
   }
 
-  // ── 기도 시작 화면 ────────────────────────────────────────
-  if (!session) {
-    return <StartScreen onStart={startNew} />
-  }
+  if (!session) return <StartScreen onStart={startNew} />
 
-  // ── 기도 흐름 화면 ────────────────────────────────────────
   return (
     <FlowScreen
       blocks={session.blocks}
@@ -118,7 +125,49 @@ export default function PrayerPage() {
   )
 }
 
-// ─── 시작 화면 (지향 입력 + 날짜 선택) ───────────────────────
+// ─── 완료 후 쉬는 화면 ───────────────────────────────────────
+function RestScreen({ restState, onDismiss }) {
+  const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
+  const d = new Date(restState.completedAt)
+  const dateStr = `${d.getMonth() + 1}월 ${d.getDate()}일 (${DAY_LABELS[d.getDay()]})`
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-8 pb-20">
+      <div className="text-center space-y-5 max-w-xs w-full">
+        <p className="text-xs tracking-[0.3em] text-gray-300 dark:text-gray-600 uppercase">
+          기도 완료
+        </p>
+
+        <div className="space-y-1">
+          <p className="text-2xl font-light text-gray-700 dark:text-gray-200">
+            {restState.dayNumber}일차
+          </p>
+          <p className="text-xs text-gray-300 dark:text-gray-600">{dateStr}</p>
+        </div>
+
+        {restState.intention && (
+          <p className="text-sm text-gray-500 dark:text-gray-400 leading-loose italic border-t border-gray-100 dark:border-gray-800 pt-5">
+            "{restState.intention}"
+          </p>
+        )}
+
+        <p className="text-sm text-gray-400 dark:text-gray-500 tracking-wide pt-2">
+          내일 만나요
+        </p>
+      </div>
+
+      {/* 닫기 — 아주 작게 */}
+      <button
+        onClick={onDismiss}
+        className="absolute bottom-24 text-[10px] tracking-widest text-gray-200 dark:text-gray-700"
+      >
+        닫기
+      </button>
+    </div>
+  )
+}
+
+// ─── 시작 화면 ───────────────────────────────────────────────
 function StartScreen({ onStart }) {
   const [day, setDay] = useState(1)
   const [intention, setIntention] = useState('')
@@ -135,7 +184,6 @@ function StartScreen({ onStart }) {
       </div>
 
       <div className="w-full max-w-xs space-y-6">
-        {/* 일차 선택 */}
         <div>
           <p className="text-xs tracking-widest text-gray-400 dark:text-gray-500 mb-2">일차</p>
           <div className="grid grid-cols-9 gap-1">
@@ -156,7 +204,6 @@ function StartScreen({ onStart }) {
           </div>
         </div>
 
-        {/* 지향 입력 */}
         <div>
           <p className="text-xs tracking-widest text-gray-400 dark:text-gray-500 mb-2">지향 (선택)</p>
           <textarea

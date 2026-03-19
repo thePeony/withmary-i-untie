@@ -1,4 +1,4 @@
-/* 코펍 바탕 폰트 */
+/* 코펍 바탕 */
 @font-face {
   font-family: 'KoPubBatang';
   src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2109@1.0/KoPubWorldBatangPL.woff') format('woff');
@@ -13,10 +13,37 @@
   font-style: normal;
   font-display: swap;
 }
+/* 코펍 돋움 */
+@font-face {
+  font-family: 'KoPubDotum';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2109@1.0/KoPubWorldDotumPL.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'KoPubDotum';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2109@1.0/KoPubWorldDotumPM.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  /* 기도 지향 텍스트 — 코펍 돋움 볼드, 차분한 색상 */
+  .intention-text {
+    font-family: 'KoPubDotum', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    font-weight: 700;
+    color: #8b6f62;
+  }
+  .dark .intention-text {
+    color: #c4a08a;
+  }
+}
 
 @layer base {
   html {
