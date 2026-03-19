@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import {
   loadHistory, loadSettings, saveSettings,
   exportHistory, importHistory, updateRecord, deleteRecord,
+  syncRestStateFromHistory,
 } from '../store/prayerStore'
 
 const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
@@ -120,6 +121,7 @@ export default function SettingsPage() {
         setHistory(merged)
         setGroups(groupHistory(merged))
         setImportError(false)
+        syncRestStateFromHistory() // 오늘 기록 있으면 기도탭에 반영
       } else {
         setImportError(true)
       }

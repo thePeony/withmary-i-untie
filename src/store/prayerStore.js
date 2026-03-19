@@ -120,6 +120,29 @@ export function clearRestState() {
   localStorage.removeItem(REST_KEY)
 }
 
+// 히스토리에서 오늘 완료한 기록이 있으면 restState 동기화
+// 가져오기 직후 호출해서 기도탭이 이미 완료 상태임을 인식하게 함
+export function syncRestStateFromHistory() {
+  const history = loadHistory()
+  if (history.length === 0) return
+
+  const latest = history[0]
+  const isToday =
+    new Date(latest.completedAt).toDateString() === new Date().toDateString()
+  if (!isToday) return
+
+  // 이미 restState가 있으면 덮어쓰지 않음
+  if (loadRestState()) return
+
+  const rest = {
+    dayNumber: latest.dayNumber,
+    intention: latest.intention ?? '',
+    completedAt: latest.completedAt,
+  }
+  saveRestState(rest)
+  window.dispatchEvent(new CustomEvent('withmary-rest-updated', { detail: rest }))
+}
+
 // ─── 기록 내보내기 / 불러오기 ─────────────────────────────────
 export function exportHistory() {
   const history = loadHistory()

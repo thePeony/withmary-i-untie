@@ -46,11 +46,19 @@ export default function PrayerPage() {
       setSavedState(null)
       setResumePrompt(false)
     }
+    function onRestUpdated(e) {
+      setRestState(e.detail)
+      setSession(null)
+      setResumePrompt(false)
+      setNextStart(null)
+    }
     window.addEventListener('withmary-rest-cleared', onRestCleared)
     window.addEventListener('withmary-session-cleared', onSessionCleared)
+    window.addEventListener('withmary-rest-updated', onRestUpdated)
     return () => {
       window.removeEventListener('withmary-rest-cleared', onRestCleared)
       window.removeEventListener('withmary-session-cleared', onSessionCleared)
+      window.removeEventListener('withmary-rest-updated', onRestUpdated)
     }
   }, [])
 
