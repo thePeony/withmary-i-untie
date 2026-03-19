@@ -3,7 +3,7 @@ import RosaryBeads from './RosaryBeads'
 
 // 카드 외곽: flex column — animate-fadein은 CARD_SCROLL에만 (계속 › 는 페이드 제외)
 const CARD_BASE = 'absolute inset-0 top-[60px] bottom-16 flex flex-col'
-const CARD_SCROLL = 'flex-1 overflow-y-auto px-6 pt-3 pb-4 animate-fadein'
+const CARD_SCROLL = 'flex-1 overflow-y-auto px-6 pt-3 pb-4'
 
 // 타이틀: font-bold
 const TITLE_CLASS = 'text-sm font-bold tracking-wide text-gray-700 dark:text-gray-200 mb-3'
@@ -14,22 +14,19 @@ const CONTINUE_CLASS = 'shrink-0 text-right px-6 pb-3 text-[10px] text-gray-400 
 export default function PrayerCard({ block, onTap, onBeadsComplete }) {
   const [open, setOpen] = useState(block.defaultOpen !== false)
 
+  function renderInline(text) {
+    return text.split(/(<u>.*?<\/u>|<b>.*?<\/b>)/g).map((chunk, j) => {
+      if (chunk.startsWith('<u>') && chunk.endsWith('</u>')) return <u key={j}>{chunk.slice(3, -4)}</u>
+      if (chunk.startsWith('<b>') && chunk.endsWith('</b>')) return <strong key={j} className="font-bold">{chunk.slice(3, -4)}</strong>
+      return <span key={j}>{chunk}</span>
+    })
+  }
+
   function renderBody(text) {
     if (!text) return null
     return text.split('\n').map((line, i) => {
-      // 빈 줄 (\n\n) → 줄 간격 블록
       if (line === '') return <span key={i} className="block mt-3" />
-      const parts = line.split(/(<u>.*?<\/u>)/g)
-      return (
-        <span key={i} className="block">
-          {parts.map((part, j) => {
-            if (part.startsWith('<u>') && part.endsWith('</u>')) {
-              return <u key={j}>{part.slice(3, -4)}</u>
-            }
-            return <span key={j}>{part}</span>
-          })}
-        </span>
-      )
+      return <span key={i} className="block">{renderInline(line)}</span>
     })
   }
 
@@ -65,22 +62,22 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
             {block.parts.map((part, i) => {
               if (part.type === 'title') return (
                 <p key={i} className="font-semibold text-gray-700 dark:text-gray-200 whitespace-pre-line">
-                  {part.text}
+                  {renderInline(part.text)}
                 </p>
               )
               if (part.type === 'quote') return (
                 <p key={i} className="whitespace-pre-line mt-6">
-                  {part.text}
+                  {renderInline(part.text)}
                 </p>
               )
               if (part.type === 'source') return (
                 <p key={i} className="text-xs text-gray-400 dark:text-gray-500 mt-2 text-center">
-                  {part.text}
+                  {renderInline(part.text)}
                 </p>
               )
               if (part.type === 'meditation') return (
                 <p key={i} className="whitespace-pre-line mt-6">
-                  {part.text}
+                  {renderInline(part.text)}
                 </p>
               )
               return null
@@ -133,11 +130,7 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
     >
       <div className={CARD_SCROLL}>
         {block.title && <p className={TITLE_CLASS}>{block.title}</p>}
-        <div className={`text-sm leading-loose whitespace-pre-line ${
-          isInstruction
-            ? 'text-gray-700 dark:text-gray-200 font-medium'
-            : 'text-gray-600 dark:text-gray-300'
-        }`}>
+        <div className="text-sm leading-loose whitespace-pre-line text-gray-600 dark:text-gray-300">
           {renderBody(block.body)}
         </div>
       </div>

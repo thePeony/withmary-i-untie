@@ -160,7 +160,7 @@ function closingBlocks() {
 
 // ─── [지향] 치환 — JSON에 [지향] 으로 표기 ─────────────────────
 function injectIntention(blocks, intention) {
-  const fill = intention || '[지향]'   // 빈 의향이면 [지향] 그대로 표시
+  const fill = intention ? `<b>${intention}</b>` : '[지향]'  // 입력하면 볼드, 없으면 [지향] 표시
   const r = (s) => s ? s.replace(/\[지향\]/g, fill) : s
   return blocks.map(b => ({
     ...b,

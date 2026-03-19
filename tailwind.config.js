@@ -11,6 +11,9 @@ export default {
         sans: ['KoPubBatang', 'Apple SD Gothic Neo', 'Noto Sans KR', 'sans-serif'],
         kopub: ['KoPubBatang', 'serif'],
       },
+      fontSize: {
+        xs: ['0.8rem', { lineHeight: '1.25rem' }],
+      },
     },
   },
   plugins: [],

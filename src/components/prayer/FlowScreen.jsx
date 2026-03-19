@@ -18,7 +18,7 @@ export default function FlowScreen({ blocks, currentIndex, onAdvance, onBack }) 
     <div className="fixed inset-0 pb-16 bg-white dark:bg-gray-950">
 
       {/* 헤더: 이전 버튼 + 섹션 라벨 + 진행 바 */}
-      <div className="px-4 pt-6 pb-0">
+      <div className="px-4 pt-[0.6rem] pb-0">
         <div className="h-8 flex items-center justify-center relative mb-2">
           {currentIndex > 0 && (
             <button
