@@ -21,7 +21,7 @@ export default function PrayerPage() {
   function startNew(dayNumber = 1, intention = '') {
     const date = new Date()
     const settings = loadSettings()
-    const blocks = buildFlow(dayNumber, date, settings)
+    const blocks = buildFlow(dayNumber, date, settings, intention)
     const newSession = {
       dayNumber,
       date: date.toISOString(),
@@ -40,7 +40,7 @@ export default function PrayerPage() {
     if (!savedState) return
     const date = new Date(savedState.date)
     const settings = loadSettings()
-    const blocks = buildFlow(savedState.dayNumber, date, settings)
+    const blocks = buildFlow(savedState.dayNumber, date, settings, savedState.intention ?? '')
     setSession({ ...savedState, blocks })
     setResumePrompt(false)
   }

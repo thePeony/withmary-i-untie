@@ -120,12 +120,23 @@ function novenaDayBlocks(dayNumber) {
   const novena = novenaDays[dayNumber - 1]
   const section = novena.title
   return [
-    textBlock({
-      id: `novena_${dayNumber}_meditation`,
-      title: '묵상',
-      body: `${novena.meditation.text}${novena.meditation.source ? `\n\n— ${novena.meditation.source}` : ''}`,
-      section,
-    }),
+    novena.meditation.source
+      ? {
+          id: `novena_${dayNumber}_meditation`,
+          type: 'text',
+          title: '묵상',
+          section,
+          parts: [
+            { type: 'quote', text: novena.meditation.text },
+            { type: 'source', text: novena.meditation.source },
+          ],
+        }
+      : textBlock({
+          id: `novena_${dayNumber}_meditation`,
+          title: '묵상',
+          body: novena.meditation.text,
+          section,
+        }),
     textBlock({
       id: `novena_${dayNumber}_petition`,
       title: '청원기도',
@@ -147,17 +158,31 @@ function closingBlocks() {
   ]
 }
 
+// ─── {{매듭}} 치환 ────────────────────────────────────────────
+function injectIntention(blocks, intention) {
+  if (!intention) return blocks
+  const r = (s) => s ? s.replace(/\{\{매듭\}\}/g, intention) : s
+  return blocks.map(b => ({
+    ...b,
+    title: r(b.title),
+    body:  r(b.body),
+    parts: b.parts?.map(p => ({ ...p, text: r(p.text) })),
+  }))
+}
+
 // ─── 전체 흐름 생성 ──────────────────────────────────────────
 /**
- * @param {number} dayNumber - 1~9일차
- * @param {Date}   date      - 기도 날짜 (요일 → 신비 결정)
- * @returns {Array} blocks   - 전체 기도 블록 배열
+ * @param {number} dayNumber  - 1~9일차
+ * @param {Date}   date       - 기도 날짜 (요일 → 신비 결정)
+ * @param {object} settings   - 설정 객체
+ * @param {string} intention  - 기도 지향 ({{매듭}} 치환)
+ * @returns {Array} blocks    - 전체 기도 블록 배열
  */
-export function buildFlow(dayNumber = 1, date = new Date(), settings = {}) {
+export function buildFlow(dayNumber = 1, date = new Date(), settings = {}, intention = '') {
   _idSeq = 0
   const mysteryKey = getMysteryKeyForDate(date)
 
-  return [
+  const blocks = [
     ...applySettings(openingBlocks(), settings),
     ...rosaryIntroBlocks(settings),
     ...decadeBlocks(mysteryKey, 0, settings),
@@ -168,6 +193,7 @@ export function buildFlow(dayNumber = 1, date = new Date(), settings = {}) {
     ...decadeBlocks(mysteryKey, 4, settings),
     ...closingBlocks(),
   ]
+  return injectIntention(blocks, intention)
 }
 
 export { pack }
