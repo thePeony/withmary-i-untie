@@ -23,8 +23,9 @@ function makeId(prefix) {
   return `${prefix}_${++_idSeq}`
 }
 
-function textBlock({ id, title, body, section, collapsible = false, defaultOpen = true }) {
-  return { id: id || makeId('text'), type: 'text', title, body, section, collapsible, defaultOpen }
+// subtype: 'instruction' | 'prayer' | undefined
+function textBlock({ id, title, body, section, subtype, collapsible = false, defaultOpen = true }) {
+  return { id: id || makeId('text'), type: 'text', subtype, title, body, section, collapsible, defaultOpen }
 }
 
 function rosaryBlock({ id, title, count = 10, section, collapsible = true, defaultOpen = true }) {
@@ -35,15 +36,16 @@ function rosaryBlock({ id, title, count = 10, section, collapsible = true, defau
 
 function openingBlocks() {
   const t = texts.opening
+  const s = '공통 시작기도'
   return [
-    textBlock({ id: 'opening_startGuide',          title: t.startGuide.title,            body: t.startGuide.body,            section: '공통 시작기도' }),
-    textBlock({ id: 'opening_signOfCross',          title: t.signOfCrossGuide.title,      body: t.signOfCrossGuide.body,      section: '공통 시작기도' }),
-    textBlock({ id: 'opening_holySpiritHymn',       title: t.holySpiritHymn.title,        body: t.holySpiritHymn.body,        section: '공통 시작기도' }),
-    textBlock({ id: 'opening_creedInstruction',     title: t.apostlesCreedInstruction.title, body: t.apostlesCreedInstruction.body, section: '공통 시작기도' }),
-    textBlock({ id: 'opening_creed',                title: t.apostlesCreed.title,         body: t.apostlesCreed.body,         section: '공통 시작기도' }),
-    textBlock({ id: 'opening_reflection',           title: t.prayerReflection.title,      body: t.prayerReflection.body,      section: '공통 시작기도' }),
-    textBlock({ id: 'opening_contrition',           title: t.actOfContrition.title,       body: t.actOfContrition.body,       section: '공통 시작기도' }),
-    textBlock({ id: 'opening_undoer',               title: t.undoerPrayer.title,          body: t.undoerPrayer.body,          section: '공통 시작기도' }),
+    textBlock({ id: 'opening_startGuide',      title: t.startGuide.title,               body: t.startGuide.body,               section: s, subtype: 'instruction' }),
+    textBlock({ id: 'opening_signOfCross',     title: t.signOfCrossGuide.title,         body: t.signOfCrossGuide.body,         section: s, subtype: 'instruction' }),
+    textBlock({ id: 'opening_holySpiritHymn',  title: t.holySpiritHymn.title,           body: t.holySpiritHymn.body,           section: s, subtype: 'prayer' }),
+    textBlock({ id: 'opening_creedInstruct',   title: t.apostlesCreedInstruction.title, body: t.apostlesCreedInstruction.body, section: s, subtype: 'instruction' }),
+    textBlock({ id: 'opening_creed',           title: t.apostlesCreed.title,            body: t.apostlesCreed.body,            section: s, subtype: 'prayer' }),
+    textBlock({ id: 'opening_reflection',      title: t.prayerReflection.title,         body: t.prayerReflection.body,         section: s, subtype: 'instruction' }),
+    textBlock({ id: 'opening_contrition',      title: t.actOfContrition.title,          body: t.actOfContrition.body,          section: s, subtype: 'prayer' }),
+    textBlock({ id: 'opening_undoer',          title: t.undoerPrayer.title,             body: t.undoerPrayer.body,             section: s, subtype: 'prayer' }),
   ]
 }
 
@@ -67,14 +69,7 @@ function decadeBlocks(mysteryKey, decadeIndex) {
   const section = `${mystery.label} ${decadeIndex + 1}단`
 
   return [
-    // 신비 선포
-    textBlock({
-      id: `decade_${mysteryKey}_${decadeIndex}_announcement`,
-      title: `${decadeIndex + 1}단`,
-      body: decade.title,
-      section,
-    }),
-    // 신비 설명 (접기)
+    // 신비 설명 (접기) — 먼저
     textBlock({
       id: `decade_${mysteryKey}_${decadeIndex}_mysteryDesc`,
       title: '신비 설명',
@@ -83,7 +78,7 @@ function decadeBlocks(mysteryKey, decadeIndex) {
       collapsible: true,
       defaultOpen: false,
     }),
-    // 성서 · 묵상 (접기)
+    // 성서 · 묵상 (접기) — 신비 선포 전에
     textBlock({
       id: `decade_${mysteryKey}_${decadeIndex}_reflection`,
       title: '성서 · 묵상',
@@ -91,6 +86,13 @@ function decadeBlocks(mysteryKey, decadeIndex) {
       section,
       collapsible: true,
       defaultOpen: true,
+    }),
+    // 신비 선포 — 성서묵상 다음
+    textBlock({
+      id: `decade_${mysteryKey}_${decadeIndex}_announcement`,
+      title: `${mystery.label} ${decadeIndex + 1}단`,
+      body: decade.title,
+      section,
     }),
     // 주님의 기도
     textBlock({

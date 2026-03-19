@@ -71,6 +71,7 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
   }
 
   // ── 일반 텍스트 카드 ───────────────────────────────────────
+  const isInstruction = block.subtype === 'instruction'
   return (
     <div
       className={`${CARD_BASE} cursor-pointer active:opacity-70 transition-opacity`}
@@ -80,7 +81,11 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
         <p className={TITLE_CLASS}>{block.title}</p>
       )}
 
-      <div className="text-sm text-gray-600 dark:text-gray-300 leading-loose whitespace-pre-line">
+      <div className={`text-sm leading-loose whitespace-pre-line ${
+        isInstruction
+          ? 'text-gray-700 dark:text-gray-200 font-medium'
+          : 'text-gray-600 dark:text-gray-300'
+      }`}>
         {renderBody(block.body)}
       </div>
 
