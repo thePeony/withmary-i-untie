@@ -52,13 +52,33 @@ export default function PrayerPage() {
       setResumePrompt(false)
       setNextStart(null)
     }
+    // 기록 삭제 시 항상 발생 — restState가 이미 없어도 nextStart 재계산
+    function onHistoryChanged(e) {
+      const remaining = e.detail
+      const currentRest = loadRestState()
+      if (!currentRest) {
+        // rest 없음: 남은 기록 기반으로 nextStart 재계산
+        if (remaining.length === 0) {
+          setNextStart(null)
+        } else {
+          const latest = remaining[0]
+          if (latest.dayNumber < 9) {
+            setNextStart({ day: latest.dayNumber + 1, intention: latest.intention ?? '' })
+          } else {
+            setNextStart(null)
+          }
+        }
+      }
+    }
     window.addEventListener('withmary-rest-cleared', onRestCleared)
     window.addEventListener('withmary-session-cleared', onSessionCleared)
     window.addEventListener('withmary-rest-updated', onRestUpdated)
+    window.addEventListener('withmary-history-changed', onHistoryChanged)
     return () => {
       window.removeEventListener('withmary-rest-cleared', onRestCleared)
       window.removeEventListener('withmary-session-cleared', onSessionCleared)
       window.removeEventListener('withmary-rest-updated', onRestUpdated)
+      window.removeEventListener('withmary-history-changed', onHistoryChanged)
     }
   }, [])
 

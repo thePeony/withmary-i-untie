@@ -98,6 +98,9 @@ export function deleteRecord(completedAt) {
     }
   }
 
+  // 기록이 삭제될 때마다 항상 발송 → PrayerPage가 nextStart 재계산
+  window.dispatchEvent(new CustomEvent('withmary-history-changed', { detail: updated }))
+
   return updated
 }
 
