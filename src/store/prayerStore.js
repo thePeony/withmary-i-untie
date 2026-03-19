@@ -62,6 +62,15 @@ export function loadHistory() {
   }
 }
 
+export function updateRecord(completedAt, patch) {
+  const history = loadHistory()
+  const updated = history.map(r =>
+    r.completedAt === completedAt ? { ...r, ...patch } : r
+  )
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(updated))
+  return updated
+}
+
 // ─── 기록 내보내기 / 불러오기 ─────────────────────────────────
 export function exportHistory() {
   const history = loadHistory()

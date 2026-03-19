@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { loadHistory, loadSettings, saveSettings, exportHistory, importHistory } from '../store/prayerStore'
+import { loadHistory, loadSettings, saveSettings, exportHistory, importHistory, updateRecord } from '../store/prayerStore'
 
 const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
 
@@ -32,6 +32,8 @@ function ToggleRow({ label, on, onToggle, last = false }) {
 export default function SettingsPage() {
   const [history, setHistory] = useState([])
   const [expandedIdx, setExpandedIdx] = useState(null)
+  const [editingAt, setEditingAt] = useState(null)   // completedAt of record being edited
+  const [editText, setEditText] = useState('')
   const [importError, setImportError] = useState(false)
   const [darkMode, setDarkMode] = useState(
     document.documentElement.classList.contains('dark')
@@ -56,6 +58,18 @@ export default function SettingsPage() {
     const next = { ...settings, hideInstructions: instructionsVisible }  // 보이면 → 숨김으로
     setSettings(next)
     saveSettings(next)
+  }
+
+  function startEdit(record) {
+    setEditingAt(record.completedAt)
+    setEditText(record.intention ?? '')
+    setExpandedIdx(null)
+  }
+
+  function saveEdit(completedAt) {
+    const updated = updateRecord(completedAt, { intention: editText })
+    setHistory(updated)
+    setEditingAt(null)
   }
 
   function handleImport(e) {
@@ -131,37 +145,69 @@ export default function SettingsPage() {
           </p>
         ) : (
           <div className="divide-y divide-gray-100 dark:divide-gray-800">
-            {history.map((record, idx) => (
-              <div key={idx}>
-                <button
-                  onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
-                  className="w-full flex items-center justify-between py-4 text-left"
-                >
-                  <div>
-                    <p className="text-sm text-gray-700 dark:text-gray-200">
-                      {record.dayNumber}일차
-                    </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                      {formatDate(record.completedAt)}
-                    </p>
-                    {record.intention && (
-                      <p className="text-xs text-gray-400 dark:text-gray-500 truncate max-w-[240px] mt-0.5 italic">
-                        "{record.intention}"
-                      </p>
-                    )}
-                  </div>
-                  <span className={`text-gray-300 dark:text-gray-600 text-xs transition-transform duration-300 ${expandedIdx === idx ? 'rotate-180' : ''}`}>
-                    ▾
-                  </span>
-                </button>
+            {history.map((record, idx) => {
+              const isExpanded = expandedIdx === idx
+              const isEditing = editingAt === record.completedAt
 
-                {expandedIdx === idx && record.intention && (
-                  <div className="pb-4 text-sm text-gray-600 dark:text-gray-300 leading-loose italic">
-                    "{record.intention}"
-                  </div>
-                )}
-              </div>
-            ))}
+              return (
+                <div key={record.completedAt}>
+                  {/* 행: 일차 + 날짜 */}
+                  <button
+                    onClick={() => setExpandedIdx(isExpanded ? null : idx)}
+                    className="w-full flex items-center justify-between py-4 text-left"
+                  >
+                    <span className="text-sm text-gray-700 dark:text-gray-200">
+                      {record.dayNumber}일차
+                    </span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500">
+                      {formatDate(record.completedAt)}
+                    </span>
+                  </button>
+
+                  {/* 펼침: 지향 + 수정 */}
+                  {isExpanded && (
+                    <div className="pb-4 space-y-2">
+                      {isEditing ? (
+                        <>
+                          <textarea
+                            value={editText}
+                            onChange={e => setEditText(e.target.value)}
+                            rows={3}
+                            className="w-full text-sm text-gray-700 dark:text-gray-200 bg-transparent border border-gray-200 dark:border-gray-700 rounded-lg p-3 resize-none focus:outline-none focus:border-gray-400 dark:focus:border-gray-500"
+                          />
+                          <div className="flex gap-3">
+                            <button
+                              onClick={() => saveEdit(record.completedAt)}
+                              className="text-xs text-gray-600 dark:text-gray-300 tracking-wide"
+                            >
+                              저장
+                            </button>
+                            <button
+                              onClick={() => setEditingAt(null)}
+                              className="text-xs text-gray-300 dark:text-gray-600 tracking-wide"
+                            >
+                              취소
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-sm text-gray-600 dark:text-gray-300 leading-loose">
+                            {record.intention || <span className="text-gray-300 dark:text-gray-600 italic">지향 없음</span>}
+                          </p>
+                          <button
+                            onClick={() => startEdit(record)}
+                            className="text-xs text-gray-400 dark:text-gray-500 tracking-wide"
+                          >
+                            수정
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         )}
       </div>
