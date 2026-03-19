@@ -61,3 +61,37 @@ export function loadHistory() {
     return []
   }
 }
+
+// ─── 기록 내보내기 / 불러오기 ─────────────────────────────────
+export function exportHistory() {
+  const history = loadHistory()
+  const blob = new Blob(
+    [JSON.stringify({ version: 1, history }, null, 2)],
+    { type: 'application/json' }
+  )
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `withmary_기도기록_${new Date().toISOString().slice(0, 10)}.json`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+export function importHistory(jsonText) {
+  try {
+    const parsed = JSON.parse(jsonText)
+    const incoming = parsed.history ?? parsed  // 버전 래퍼 없는 경우도 허용
+    if (!Array.isArray(incoming)) throw new Error('invalid')
+    const current = loadHistory()
+    // 중복 제거: completedAt 기준
+    const existingKeys = new Set(current.map(r => r.completedAt))
+    const merged = [
+      ...incoming.filter(r => !existingKeys.has(r.completedAt)),
+      ...current,
+    ].sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(merged))
+    return merged
+  } catch {
+    return null  // 실패
+  }
+}

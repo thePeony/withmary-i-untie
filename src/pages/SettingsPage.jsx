@@ -1,25 +1,23 @@
-import { useState, useEffect } from 'react'
-import { loadHistory, loadSettings, saveSettings, DEFAULT_SETTINGS } from '../store/prayerStore'
+import { useState, useEffect, useRef } from 'react'
+import { loadHistory, loadSettings, saveSettings, exportHistory, importHistory } from '../store/prayerStore'
 
 const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
 
-function ToggleRow({ label, desc, on, onToggle, disabled = false, last = false }) {
+function formatDate(isoString) {
+  const d = new Date(isoString)
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')} (${DAY_LABELS[d.getDay()]})`
+}
+
+// on = 보이는 상태 (켜짐 = 색 채움)
+function ToggleRow({ label, on, onToggle, last = false }) {
   return (
     <div className={`flex items-center justify-between py-4 ${last ? '' : 'border-b border-gray-100 dark:border-gray-800'}`}>
-      <div>
-        <span className={`text-sm ${disabled ? 'text-gray-300 dark:text-gray-600' : 'text-gray-600 dark:text-gray-300'}`}>
-          {label}
-        </span>
-        {desc && (
-          <p className="text-[10px] text-gray-300 dark:text-gray-600 mt-0.5">{desc}</p>
-        )}
-      </div>
+      <span className="text-sm text-gray-600 dark:text-gray-300">{label}</span>
       <button
-        onClick={disabled ? undefined : onToggle}
+        onClick={onToggle}
         className={[
           'w-12 h-6 rounded-full transition-colors duration-300 relative',
-          disabled ? 'opacity-30 cursor-default' : '',
-          on && !disabled ? 'bg-gray-800 dark:bg-gray-200' : 'bg-gray-200 dark:bg-gray-700',
+          on ? 'bg-gray-800 dark:bg-gray-200' : 'bg-gray-200 dark:bg-gray-700',
         ].join(' ')}
       >
         <span className={[
@@ -31,18 +29,15 @@ function ToggleRow({ label, desc, on, onToggle, disabled = false, last = false }
   )
 }
 
-function formatDate(isoString) {
-  const d = new Date(isoString)
-  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')} (${DAY_LABELS[d.getDay()]})`
-}
-
 export default function SettingsPage() {
   const [history, setHistory] = useState([])
   const [expandedIdx, setExpandedIdx] = useState(null)
+  const [importError, setImportError] = useState(false)
   const [darkMode, setDarkMode] = useState(
     document.documentElement.classList.contains('dark')
   )
   const [settings, setSettings] = useState(() => loadSettings())
+  const fileRef = useRef(null)
 
   useEffect(() => {
     setHistory(loadHistory())
@@ -55,14 +50,34 @@ export default function SettingsPage() {
     localStorage.setItem('withmary_dark', next ? '1' : '0')
   }
 
-  function toggleSetting(key) {
-    const next = { ...settings, [key]: !settings[key] }
+  // 토글: on = 안내 문구가 보이는 상태 → hideInstructions는 반대
+  const instructionsVisible = !settings.hideInstructions
+  function toggleInstructions() {
+    const next = { ...settings, hideInstructions: instructionsVisible }  // 보이면 → 숨김으로
     setSettings(next)
     saveSettings(next)
   }
 
+  function handleImport(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const merged = importHistory(ev.target.result)
+      if (merged) {
+        setHistory(merged)
+        setImportError(false)
+      } else {
+        setImportError(true)
+      }
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }
+
   return (
     <div className="min-h-screen pt-8 px-6 pb-24">
+
       {/* 설정 */}
       <div className="mb-10">
         <p className="text-[10px] tracking-[0.3em] text-gray-300 dark:text-gray-600 uppercase mb-4">
@@ -70,31 +85,45 @@ export default function SettingsPage() {
         </p>
         <ToggleRow label="다크 모드" on={darkMode} onToggle={toggleDark} />
         <ToggleRow
-          label="안내 문구 숨기기"
-          desc="모든 기도 방법 안내를 숨깁니다"
-          on={settings.hideInstructions}
-          onToggle={() => toggleSetting('hideInstructions')}
-        />
-        <ToggleRow
-          label="사도신경 안내 숨기기"
-          on={settings.hideCreedInstruction}
-          onToggle={() => toggleSetting('hideCreedInstruction')}
-          disabled={settings.hideInstructions}
-        />
-        <ToggleRow
-          label="영광송 안내 숨기기"
-          on={settings.hideGloryInstruction}
-          onToggle={() => toggleSetting('hideGloryInstruction')}
-          disabled={settings.hideInstructions}
+          label="안내 문구 보이기"
+          on={instructionsVisible}
+          onToggle={toggleInstructions}
           last
         />
       </div>
 
-      {/* 기록 */}
+      {/* 기도 기록 */}
       <div>
-        <p className="text-[10px] tracking-[0.3em] text-gray-300 dark:text-gray-600 uppercase mb-4">
-          기도 기록
-        </p>
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-[10px] tracking-[0.3em] text-gray-300 dark:text-gray-600 uppercase">
+            기도 기록
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={exportHistory}
+              className="text-[10px] tracking-widest text-gray-400 dark:text-gray-500"
+            >
+              내보내기
+            </button>
+            <button
+              onClick={() => fileRef.current?.click()}
+              className="text-[10px] tracking-widest text-gray-400 dark:text-gray-500"
+            >
+              불러오기
+            </button>
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".json"
+              className="hidden"
+              onChange={handleImport}
+            />
+          </div>
+        </div>
+
+        {importError && (
+          <p className="text-xs text-red-400 mb-3">파일을 읽을 수 없습니다.</p>
+        )}
 
         {history.length === 0 ? (
           <p className="text-sm text-gray-300 dark:text-gray-600 py-8 text-center">
