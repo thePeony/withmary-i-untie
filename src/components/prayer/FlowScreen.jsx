@@ -23,9 +23,9 @@ export default function FlowScreen({ blocks, currentIndex, onAdvance, onBack }) 
           {currentIndex > 0 && (
             <button
               onClick={onBack}
-              className="absolute left-0 text-gray-400 dark:text-gray-500 text-xs tracking-wide py-1 px-1"
+              className="absolute left-0 w-7 h-7 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 text-sm leading-none"
             >
-              ← 이전
+              ‹
             </button>
           )}
           <p className="text-xs text-gray-500 dark:text-gray-400 tracking-wide">

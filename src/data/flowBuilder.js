@@ -97,8 +97,7 @@ function decadeBlocks(mysteryKey, decadeIndex, settings = {}) {
       title: '신비 설명',
       body: mystery.description,
       section,
-      collapsible: true,
-      defaultOpen: false,
+      collapsible: false,
     }),
     // 신비 선포 + 성서·묵상 (한 카드)
     textBlock({
