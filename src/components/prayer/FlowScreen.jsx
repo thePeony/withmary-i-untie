@@ -17,9 +17,9 @@ export default function FlowScreen({ blocks, currentIndex, onAdvance }) {
   return (
     <div className="fixed inset-0 pb-16 bg-white dark:bg-gray-950">
 
-      {/* 섹션 라벨 */}
+      {/* 섹션 라벨 — 본문(text-sm)보다 작게 */}
       <div className="px-6 pt-6 pb-1 text-center">
-        <p className="text-sm text-gray-400 dark:text-gray-500 tracking-[0.25em]">
+        <p className="text-xs text-gray-300 dark:text-gray-600 tracking-[0.3em]">
           {block.section}
         </p>
       </div>

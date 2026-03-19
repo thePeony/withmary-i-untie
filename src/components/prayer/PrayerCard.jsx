@@ -3,6 +3,9 @@ import RosaryBeads from './RosaryBeads'
 
 const CARD_BASE = 'absolute inset-0 top-[52px] bottom-24 overflow-y-auto px-6 py-4 animate-fadein'
 
+// 타이틀: 본문(text-sm)과 동일 크기, 굵기만 medium
+const TITLE_CLASS = 'text-sm font-medium tracking-wide text-gray-700 dark:text-gray-200 mb-3'
+
 export default function PrayerCard({ block, onTap, onBeadsComplete }) {
   const [open, setOpen] = useState(block.defaultOpen !== false)
 
@@ -27,9 +30,7 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
   if (block.type === 'rosary') {
     return (
       <div className={CARD_BASE}>
-        <p className="text-base tracking-wide text-gray-600 dark:text-gray-300 font-medium mb-4">
-          {block.title}
-        </p>
+        <p className={TITLE_CLASS}>{block.title}</p>
         <RosaryBeads count={block.count} onComplete={onBeadsComplete} blockId={block.id} />
       </div>
     )
@@ -47,13 +48,11 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
       >
         <div
           data-toggle
-          className="flex items-center justify-between mb-4"
+          className="flex items-center justify-between mb-3"
           onClick={(e) => { e.stopPropagation(); setOpen(v => !v) }}
         >
-          <p className="text-base tracking-wide text-gray-600 dark:text-gray-300 font-medium">
-            {block.title}
-          </p>
-          <span className={`text-gray-300 dark:text-gray-600 text-xs transition-transform duration-300 ${open ? 'rotate-180' : ''}`}>
+          <p className={TITLE_CLASS}>{block.title}</p>
+          <span className={`text-gray-300 dark:text-gray-600 text-xs transition-transform duration-300 ml-2 shrink-0 ${open ? 'rotate-180' : ''}`}>
             ▾
           </span>
         </div>
@@ -78,9 +77,7 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
       onClick={onTap}
     >
       {block.title && (
-        <p className="text-base tracking-wide text-gray-600 dark:text-gray-300 font-medium mb-3">
-          {block.title}
-        </p>
+        <p className={TITLE_CLASS}>{block.title}</p>
       )}
 
       <div className="text-sm text-gray-600 dark:text-gray-300 leading-loose whitespace-pre-line">
