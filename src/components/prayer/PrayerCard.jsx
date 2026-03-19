@@ -50,6 +50,46 @@ export default function PrayerCard({ block, onTap, onBeadsComplete }) {
     )
   }
 
+  // ── 신비 선포 카드 (parts 구조) ───────────────────────────────
+  if (block.parts) {
+    return (
+      <div
+        className={`${CARD_BASE} cursor-pointer active:opacity-70 transition-opacity`}
+        onClick={onTap}
+      >
+        <div className={CARD_SCROLL}>
+          {block.title && <p className={TITLE_CLASS}>{block.title}</p>}
+          <div className="text-sm text-gray-600 dark:text-gray-300 leading-loose">
+            {block.parts.map((part, i) => {
+              if (part.type === 'title') return (
+                <p key={i} className="font-semibold text-gray-700 dark:text-gray-200 whitespace-pre-line">
+                  {part.text}
+                </p>
+              )
+              if (part.type === 'quote') return (
+                <p key={i} className="whitespace-pre-line mt-6">
+                  {part.text}
+                </p>
+              )
+              if (part.type === 'source') return (
+                <p key={i} className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                  {part.text}
+                </p>
+              )
+              if (part.type === 'meditation') return (
+                <p key={i} className="whitespace-pre-line mt-6">
+                  {part.text}
+                </p>
+              )
+              return null
+            })}
+          </div>
+        </div>
+        <p className={CONTINUE_CLASS}>계속 ›</p>
+      </div>
+    )
+  }
+
   // ── 접기 카드 ──────────────────────────────────────────────
   if (block.collapsible) {
     return (

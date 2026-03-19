@@ -80,16 +80,6 @@ function decadeBlocks(mysteryKey, decadeIndex, settings = {}) {
   const closing = texts.decadeFixed.decadeClosingPrayer
   const section = `${mystery.label} ${decadeIndex + 1}단`
 
-  // 신비 선포 + 성서·묵상을 하나의 카드로
-  const announcementBody = [
-    decade.title,
-    '',
-    decade.scripture.quote,
-    `— ${decade.scripture.source}`,
-    '',
-    decade.meditation.text,
-  ].join('\n')
-
   return [
     // 신비 설명 — 1단에만 표시
     ...(decadeIndex === 0 ? [textBlock({
@@ -99,13 +89,20 @@ function decadeBlocks(mysteryKey, decadeIndex, settings = {}) {
       section,
       collapsible: false,
     })] : []),
-    // 신비 선포 + 성서·묵상 (한 카드)
-    textBlock({
+    // 신비 선포 + 성서·묵상 (구조화된 parts 카드)
+    {
       id: `decade_${mysteryKey}_${decadeIndex}_announcement`,
+      type: 'text',
+      subtype: 'announcement',
       title: `${mystery.label} ${decadeIndex + 1}단`,
-      body: announcementBody,
       section,
-    }),
+      parts: [
+        { type: 'title',      text: decade.title },
+        { type: 'quote',      text: decade.scripture.quote },
+        { type: 'source',     text: decade.scripture.source },
+        { type: 'meditation', text: decade.meditation.text },
+      ],
+    },
     // 주님의 기도
     textBlock({ id: `decade_${mysteryKey}_${decadeIndex}_lordsPrayer`, title: t.lordsPrayer.title, body: t.lordsPrayer.body, section, subtype: 'prayer' }),
     // 성모송 10번 (묵주알)
