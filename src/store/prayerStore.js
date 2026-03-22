@@ -146,27 +146,31 @@ export function syncIntentionToActive(completedAts, newIntention) {
   window.dispatchEvent(new CustomEvent('withmary-history-changed', { detail: loadHistory() }))
 }
 
-// 히스토리에서 오늘 완료한 기록이 있으면 restState 동기화
-// 가져오기 직후 호출해서 기도탭이 이미 완료 상태임을 인식하게 함
+// 히스토리에서 오늘/어제 완료한 기록이 있으면 기도탭 상태 동기화
+// 가져오기 직후 호출해서 기도탭이 올바른 상태임을 인식하게 함
 export function syncRestStateFromHistory() {
   const history = loadHistory()
   if (history.length === 0) return
 
   const latest = history[0]
-  const isToday =
-    new Date(latest.completedAt).toDateString() === new Date().toDateString()
-  if (!isToday) return
+  const latestDate = new Date(latest.completedAt).toDateString()
+  const today = new Date().toDateString()
+  const isToday = latestDate === today
 
-  // 이미 restState가 있으면 덮어쓰지 않음
-  if (loadRestState()) return
-
-  const rest = {
-    dayNumber: latest.dayNumber,
-    intention: latest.intention ?? '',
-    completedAt: latest.completedAt,
+  if (isToday) {
+    // 오늘 완료한 기록 → restState 생성 (기도탭에 완료 화면 표시)
+    if (loadRestState()) return
+    const rest = {
+      dayNumber: latest.dayNumber,
+      intention: latest.intention ?? '',
+      completedAt: latest.completedAt,
+    }
+    saveRestState(rest)
+    window.dispatchEvent(new CustomEvent('withmary-rest-updated', { detail: rest }))
+  } else {
+    // 오늘이 아닌 기록 → nextStart 재계산 이벤트 발송 (3일차 pre-fill 등)
+    window.dispatchEvent(new CustomEvent('withmary-history-changed', { detail: history }))
   }
-  saveRestState(rest)
-  window.dispatchEvent(new CustomEvent('withmary-rest-updated', { detail: rest }))
 }
 
 // ─── 기록 내보내기 / 불러오기 ─────────────────────────────────
