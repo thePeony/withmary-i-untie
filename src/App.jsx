@@ -9,12 +9,6 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('prayer')
 
-  const pages = {
-    prayer: <PrayerPage />,
-    mary: <MaryPage />,
-    settings: <SettingsPage />,
-  }
-
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
       {loading && <LoadingScreen onDone={() => setLoading(false)} />}
@@ -22,7 +16,10 @@ export default function App() {
       {!loading && (
         <>
           <main className="max-w-lg mx-auto">
-            {pages[activeTab]}
+            {/* 세 탭 모두 항상 마운트 유지 — 이벤트 리스너가 끊기지 않도록 */}
+            <div style={{ display: activeTab === 'prayer' ? 'block' : 'none' }}><PrayerPage /></div>
+            <div style={{ display: activeTab === 'mary' ? 'block' : 'none' }}><MaryPage /></div>
+            <div style={{ display: activeTab === 'settings' ? 'block' : 'none' }}><SettingsPage /></div>
           </main>
           <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
         </>
