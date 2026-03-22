@@ -18,9 +18,7 @@ function renderBody(text) {
 }
 
 export default function MaryPage() {
-  const [openId, setOpenId] = useState(
-    categories.find((c) => c.defaultOpen)?.id ?? null
-  )
+  const [openId, setOpenId] = useState(null)
 
   function toggle(id) {
     setOpenId((prev) => (prev === id ? null : id))
