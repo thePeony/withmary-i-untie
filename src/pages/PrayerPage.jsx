@@ -279,6 +279,16 @@ function StartScreen({ onStart, initialDay, initialIntention }) {
   const [day, setDay] = useState(initialDay ?? 1)
   const [intention, setIntention] = useState(initialIntention ?? '')
 
+  // useEffect로 마운트 후 nextStart가 세팅될 때 동기화
+  // (앱 재시작 시 useEffect가 비동기로 실행되어 초기값을 놓치는 문제 해결)
+  useEffect(() => {
+    if (initialDay != null) setDay(initialDay)
+  }, [initialDay])
+
+  useEffect(() => {
+    if (initialIntention != null) setIntention(initialIntention)
+  }, [initialIntention])
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-8 gap-10">
       <div className="text-center space-y-2">
